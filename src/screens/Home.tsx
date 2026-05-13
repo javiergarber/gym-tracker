@@ -7,7 +7,6 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   useWindowDimensions,
 } from "react-native"
@@ -24,6 +23,7 @@ import type { Workout } from "../types"
 import { useDatabase } from "../context/DatabaseContext"
 import { useTheme } from "../context/ThemeContext"
 import { spacing, typography, radii } from "../tokens"
+import HapticButton from "../components/HapticButton"
 import NewWorkoutDialog from "../components/NewWorkoutDialog"
 import RenameWorkoutModal from "../components/RenameWorkoutModal"
 import DeleteWorkoutConfirmDialog from "../components/DeleteWorkoutConfirmDialog"
@@ -130,21 +130,21 @@ export default function Home({ navigation }: Props) {
       <View style={styles.inner}>
         <View style={[styles.header, { backgroundColor: colors.surface }]}>
           <Text style={[styles.title, { color: colors.text }]}>Mis entrenamientos</Text>
-          <TouchableOpacity
+          <HapticButton
             style={styles.settingsBtn}
             onPress={() => navigation.navigate("Settings")}
           >
             <Text style={styles.settingsIcon}>⚙️</Text>
-          </TouchableOpacity>
+          </HapticButton>
         </View>
 
         {workouts.length === 0 ? (
           <View style={styles.empty}>
             <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>No hay entrenamientos todavía</Text>
             <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>¡Crea uno!</Text>
-            <TouchableOpacity style={[styles.emptyBtn, { backgroundColor: colors.primary }]} onPress={handleNewWorkout}>
+            <HapticButton style={[styles.emptyBtn, { backgroundColor: colors.primary }]} onPress={handleNewWorkout}>
               <Text style={[styles.emptyBtnText, { color: colors.surface }]}>Nuevo entrenamiento</Text>
-            </TouchableOpacity>
+            </HapticButton>
           </View>
         ) : (
           <FlatList
@@ -168,13 +168,14 @@ export default function Home({ navigation }: Props) {
         )}
 
         {workouts.length > 0 && (
-          <TouchableOpacity
-            style={[styles.fab, { backgroundColor: colors.primary, shadowColor: colors.shadowPrimary }, importing && { backgroundColor: colors.disabled, shadowColor: colors.disabled }]}
+          <HapticButton
+            style={[styles.fab, { backgroundColor: colors.primary, shadowColor: colors.shadowPrimary }, importing && { backgroundColor: colors.disabled, shadowColor: colors.disabled }]
+            }
             onPress={handleNewWorkout}
             disabled={importing}
           >
             <Text style={[styles.fabText, { color: colors.surface }]}>+</Text>
-          </TouchableOpacity>
+          </HapticButton>
         )}
 
         {importing && (

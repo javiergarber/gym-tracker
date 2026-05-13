@@ -1,8 +1,9 @@
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native"
+import { View, Text, ScrollView, StyleSheet } from "react-native"
 
 import { useTheme } from "../context/ThemeContext"
 import { themes, type ThemeName } from "../theme"
 import { spacing, typography, radii } from "../tokens"
+import HapticButton from "../components/HapticButton"
 
 const REST_OPTIONS = [60, 90, 120]
 
@@ -13,7 +14,7 @@ function ThemePreviewCard({ name, selected, onSelect }: { name: ThemeName; selec
   const swatchBorder = t.dark ? "#fff" : "#000"
 
   return (
-    <TouchableOpacity
+    <HapticButton
       style={[
         localStyles.previewCard,
         { backgroundColor: t.colors.surface, borderColor: selected ? t.colors.primary : t.colors.border },
@@ -31,7 +32,7 @@ function ThemePreviewCard({ name, selected, onSelect }: { name: ThemeName; selec
       <Text style={[localStyles.previewSub, { color: t.colors.textMuted }]}>
         {t.dark ? "Oscuro" : "Claro"}
       </Text>
-    </TouchableOpacity>
+      </HapticButton>
   )
 }
 
@@ -59,7 +60,7 @@ export default function SettingsScreen() {
         </Text>
         <View style={localStyles.restRow}>
           {REST_OPTIONS.map((sec) => (
-            <TouchableOpacity
+            <HapticButton
               key={sec}
               style={[
                 localStyles.restOption,
@@ -79,7 +80,7 @@ export default function SettingsScreen() {
               >
                 {sec / 60 > 1 ? `${sec / 60} min` : `${sec} s`}
               </Text>
-            </TouchableOpacity>
+            </HapticButton>
           ))}
         </View>
       </View>

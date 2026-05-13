@@ -1,7 +1,8 @@
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native"
+import { Modal, View, Text, StyleSheet } from "react-native"
 
 import { useTheme } from "../context/ThemeContext"
 import { typography, radii, spacing } from "../tokens"
+import HapticButton from "./HapticButton"
 
 interface Props {
   visible: boolean
@@ -22,12 +23,12 @@ export default function DeleteWorkoutConfirmDialog({ visible, workoutName, onCon
             ¿Estás seguro de que quieres eliminar "{workoutName}"? Esta acción no se puede deshacer.
           </Text>
           <View style={styles.actions}>
-            <TouchableOpacity style={[styles.cancelBtn, { borderColor: colors.border }]} onPress={onCancel}>
+            <HapticButton style={[styles.cancelBtn, { borderColor: colors.border }]} onPress={onCancel}>
               <Text style={[styles.cancelText, { color: colors.textTertiary }]}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.deleteBtn} onPress={onConfirm}>
+            </HapticButton>
+            <HapticButton style={styles.deleteBtn} onPress={onConfirm}>
               <Text style={styles.deleteText}>Eliminar</Text>
-            </TouchableOpacity>
+            </HapticButton>
           </View>
         </View>
       </View>

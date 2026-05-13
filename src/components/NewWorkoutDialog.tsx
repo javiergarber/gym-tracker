@@ -4,12 +4,12 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
 } from "react-native"
 
 import { useTheme } from "../context/ThemeContext"
 import { typography, radii, spacing } from "../tokens"
+import HapticButton from "./HapticButton"
 
 interface Props {
   visible: boolean
@@ -50,10 +50,10 @@ export default function NewWorkoutDialog({ visible, onConfirm, onCancel }: Props
             autoFocus
           />
           <View style={styles.actions}>
-            <TouchableOpacity style={[styles.cancelBtn, { borderColor: colors.border }]} onPress={handleCancel}>
+            <HapticButton style={[styles.cancelBtn, { borderColor: colors.border }]} onPress={handleCancel}>
               <Text style={[styles.cancelText, { color: colors.textTertiary }]}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+            </HapticButton>
+            <HapticButton
               style={[styles.confirmBtn, { backgroundColor: colors.primary }, !isValid && { backgroundColor: colors.disabled }]}
               onPress={handleConfirm}
               disabled={!isValid}
@@ -61,7 +61,7 @@ export default function NewWorkoutDialog({ visible, onConfirm, onCancel }: Props
               <Text style={[styles.confirmText, { color: colors.surface }]}>
                 Seleccionar archivo
               </Text>
-            </TouchableOpacity>
+            </HapticButton>
           </View>
         </View>
       </View>

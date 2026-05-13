@@ -1,10 +1,12 @@
 import { useRef, useState } from "react"
-import { TouchableOpacity, Text, View, StyleSheet, Animated } from "react-native"
+import { Text, View, StyleSheet, Animated, Platform } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
+import * as Haptics from "expo-haptics"
 import Swipeable from "react-native-gesture-handler/Swipeable"
 
 import { useTheme } from "../context/ThemeContext"
 import { typography } from "../tokens"
+import HapticButton from "./HapticButton"
 import type { Workout } from "../types"
 
 interface Props {
@@ -31,20 +33,20 @@ export default function WorkoutCard({ workout, onPress, onRename, onDelete, onOp
     _dragX: Animated.AnimatedInterpolation<number>,
   ) => (
     <View style={[styles.actionsContainer, { backgroundColor: colors.backgroundSecondary }]}>
-      <TouchableOpacity
+      <HapticButton
         style={[styles.actionBtn, styles.renameBtn, { backgroundColor: colors.backgroundSecondary }]}
         onPress={() => { swipeableRef.current?.close(); onRename() }}
       >
         <Text style={styles.actionIcon}>✏️</Text>
         <Text style={[styles.actionText, { color: colors.text }]}>Renombrar</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
+      </HapticButton>
+      <HapticButton
         style={[styles.actionBtn, styles.deleteBtn]}
         onPress={() => { swipeableRef.current?.close(); onDelete() }}
       >
         <Text style={styles.actionIcon}>🗑️</Text>
         <Text style={[styles.actionText, { color: "#fff" }]}>Eliminar</Text>
-      </TouchableOpacity>
+      </HapticButton>
     </View>
   )
 
@@ -53,18 +55,22 @@ export default function WorkoutCard({ workout, onPress, onRename, onDelete, onOp
       ref={swipeableRef}
       renderRightActions={renderRightActions}
       overshootRight={false}
-      onSwipeableWillOpen={() => setSwiped(true)}
+      onSwipeableWillOpen={() => {
+        setSwiped(true)
+        if (Platform.OS !== "web") Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+      }}
       onSwipeableOpen={(_dir, swipeable) => onOpenChange?.(swipeable)}
       onSwipeableClose={() => {
         setSwiped(false)
         onOpenChange?.(null)
       }}
     >
-      <TouchableOpacity
+      <HapticButton
         style={[styles.card, styles.shadow, { backgroundColor: colors.surface, shadowColor: colors.shadow }, swiped ? styles.cardSwiped : styles.cardResting]}
         onPress={onPress}
         onLongPress={() => swipeableRef.current?.openRight()}
         activeOpacity={0.7}
+        hapticStyle={Haptics.ImpactFeedbackStyle.Light}
       >
         <LinearGradient
           colors={[colors.primary, colors.success]}
@@ -77,7 +83,7 @@ export default function WorkoutCard({ workout, onPress, onRename, onDelete, onOp
           <Text style={[styles.date, { color: colors.textDate }]}>{formattedDate}</Text>
         </View>
         <Text style={[styles.chevron, { color: colors.border }]}>›</Text>
-      </TouchableOpacity>
+      </HapticButton>
     </Swipeable>
   )
 }

@@ -1,8 +1,9 @@
 import { useState } from "react"
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native"
+import { Modal, View, Text, TextInput, StyleSheet } from "react-native"
 
 import { useTheme } from "../context/ThemeContext"
 import { typography, radii, spacing } from "../tokens"
+import HapticButton from "./HapticButton"
 
 interface Props {
   visible: boolean
@@ -43,10 +44,10 @@ export default function RenameWorkoutModal({ visible, initialName, onConfirm, on
             autoFocus
           />
           <View style={styles.actions}>
-            <TouchableOpacity style={[styles.cancelBtn, { borderColor: colors.border }]} onPress={handleCancel}>
+            <HapticButton style={[styles.cancelBtn, { borderColor: colors.border }]} onPress={handleCancel}>
               <Text style={[styles.cancelText, { color: colors.textTertiary }]}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+            </HapticButton>
+            <HapticButton
               style={[styles.confirmBtn, { backgroundColor: colors.primary }, !isValid && { backgroundColor: colors.disabled }]}
               onPress={handleConfirm}
               disabled={!isValid}
@@ -54,7 +55,7 @@ export default function RenameWorkoutModal({ visible, initialName, onConfirm, on
               <Text style={[styles.confirmText, { color: colors.surface }]}>
                 Renombrar
               </Text>
-            </TouchableOpacity>
+            </HapticButton>
           </View>
         </View>
       </View>
