@@ -1,7 +1,7 @@
 # Gym Tracker
 
 ## Language
-- Always communicate with the user in Spanish, even though code, files, and skills may be in English.
+- Always communicate with the user in Spanish from Spain (español de España, con vosotros y castellano peninsular), even though code, files, and skills may be in English.
 
 ## Stack
 - Expo SDK 54 + TypeScript (strict)
@@ -30,3 +30,6 @@
 - No lint, test, or CI setup yet
 - Run `npx expo install <pkg>` for compatible native packages
 - Compatible with Expo Go for rapid testing on device
+
+## Plan management
+- When finalizing a plan in `docs/plans/`, mark all checkboxes as `[x]`, add a `✅ **Finalizado**` status line, and prefix the filename with `✅` (e.g. `✅2026_05_13-importar-csv.md`).
