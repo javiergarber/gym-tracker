@@ -1,0 +1,40 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Start Expo",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npx expo start",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Start Expo (tunnel)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npx expo start --tunnel",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Start Android",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npx expo start --android",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Run Android build",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npx expo run:android",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Start Web",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npx expo start --web",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
