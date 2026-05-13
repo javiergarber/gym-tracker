@@ -43,7 +43,7 @@ export async function initDatabase(): Promise<void> {
 }
 
 function parseSeriesCount(seriesStr: string): number {
-  const match = seriesStr.match(/^\d+/) 
+  const match = seriesStr.match(/^\d+/)
   if (match) return parseInt(match[0], 10)
   return 1
 }

@@ -8,6 +8,8 @@ import {
   StyleSheet,
 } from "react-native"
 
+import { colors, typography, radii, spacing } from "../theme"
+
 interface Props {
   visible: boolean
   onConfirm: (name: string) => void
@@ -68,70 +70,70 @@ export default function NewWorkoutDialog({ visible, onConfirm, onCancel }: Props
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: colors.overlay,
     justifyContent: "center",
     alignItems: "center",
-    padding: 24,
+    padding: spacing.xxl,
   },
   dialog: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 24,
+    backgroundColor: colors.surface,
+    borderRadius: radii.xl,
+    padding: spacing.xxl,
     width: "100%",
     maxWidth: 400,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 16,
-    color: "#111",
+    fontSize: typography.h2.fontSize,
+    fontWeight: typography.h2.fontWeight,
+    marginBottom: spacing.lg,
+    color: colors.text,
   },
   label: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
+    fontSize: typography.caption.fontSize,
+    color: colors.textTertiary,
+    marginBottom: spacing.sm,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
+    borderColor: colors.border,
+    borderRadius: radii.sm,
     padding: 14,
-    fontSize: 16,
-    color: "#111",
-    marginBottom: 20,
+    fontSize: typography.body.fontSize,
+    color: colors.text,
+    marginBottom: spacing.xl,
   },
   actions: {
     flexDirection: "row",
-    gap: 12,
+    gap: spacing.md,
   },
   cancelBtn: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 10,
+    borderRadius: radii.sm,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: colors.border,
     alignItems: "center",
   },
   cancelText: {
-    fontSize: 16,
-    color: "#666",
+    fontSize: typography.body.fontSize,
+    color: colors.textTertiary,
   },
   confirmBtn: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 10,
-    backgroundColor: "#007AFF",
+    borderRadius: radii.sm,
+    backgroundColor: colors.primary,
     alignItems: "center",
   },
   disabledBtn: {
-    backgroundColor: "#ccc",
+    backgroundColor: colors.disabled,
   },
   confirmText: {
-    fontSize: 16,
-    color: "#fff",
+    fontSize: typography.body.fontSize,
+    color: colors.surface,
     fontWeight: "600",
   },
   disabledText: {
-    color: "#fff",
+    color: colors.surface,
   },
 })

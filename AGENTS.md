@@ -25,6 +25,8 @@
 - `docs/plans/` — architecture plans and design docs
 - `docs/use-cases/` — feature tasks and requirements for agent reference
 - `.vscode/launch.json` — VS Code run configs (Start Expo, Web, Android)
+- `src/` — source code: `screens/`, `components/`, `services/`, `navigation/`, `context/`
+- `src/theme.ts` — design tokens (colors, spacing, typography, radii)
 
 ## Notes
 - No lint, test, or CI setup yet
