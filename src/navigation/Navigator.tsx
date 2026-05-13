@@ -4,6 +4,7 @@ import { useTheme } from "../context/ThemeContext"
 import type { RootStackParamList } from "./types"
 import HomeScreen from "../screens/Home"
 import WorkoutDetailScreen from "../screens/WorkoutDetailScreen"
+import DayDetailScreen from "../screens/DayDetailScreen"
 import SettingsScreen from "../screens/SettingsScreen"
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
@@ -29,6 +30,11 @@ export default function Navigator() {
         name="WorkoutDetail"
         component={WorkoutDetailScreen}
         options={{ title: "Entrenamiento" }}
+      />
+      <Stack.Screen
+        name="DayDetail"
+        component={DayDetailScreen}
+        options={{ title: "Día" }}
       />
       <Stack.Screen
         name="Settings"

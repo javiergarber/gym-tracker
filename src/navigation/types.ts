@@ -1,6 +1,7 @@
 export type RootStackParamList = {
   Home: undefined
   WorkoutDetail: { workoutId: number }
+  DayDetail: { dayId: number }
   Settings: undefined
 }
 

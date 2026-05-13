@@ -1,5 +1,6 @@
 import * as SQLite from "expo-sqlite"
 import type { ParsedCSV } from "./csv-parser"
+import type { Workout } from "../types"
 
 let db: SQLite.SQLiteDatabase | null = null
 
@@ -96,6 +97,23 @@ export async function importWorkout(name: string, data: ParsedCSV): Promise<numb
   }
 
   return Number(workoutId)
+}
+
+export async function getWorkoutById(id: number) {
+  if (!db) throw new Error("Database not initialized")
+  const row = await db.getFirstAsync(
+    "SELECT id, name, created_at FROM workouts WHERE id = ?",
+    id
+  )
+  return row as Workout | null
+}
+
+export async function getWorkoutDays(workoutId: number) {
+  if (!db) throw new Error("Database not initialized")
+  return db.getAllAsync(
+    "SELECT id, workout_id, name, subtitle, sort_order FROM days WHERE workout_id = ? ORDER BY sort_order ASC",
+    workoutId
+  )
 }
 
 export async function getWorkouts() {
