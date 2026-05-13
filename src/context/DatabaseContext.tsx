@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
 import { ActivityIndicator, Alert, View, StyleSheet } from "react-native"
 
-import { initDatabase, getWorkouts } from "../services/database"
+import { initDatabase, getWorkouts, renameWorkout, deleteWorkout } from "../services/database"
 import { seedDatabase } from "../services/seed"
 import { colors } from "../theme"
 import type { Workout } from "../types"
@@ -10,6 +10,8 @@ interface DatabaseContextValue {
   workouts: Workout[]
   loading: boolean
   onRefresh: () => Promise<void>
+  renameWorkout: (id: number, name: string) => Promise<void>
+  deleteWorkout: (id: number) => Promise<void>
 }
 
 const DatabaseContext = createContext<DatabaseContextValue | null>(null)
@@ -49,7 +51,7 @@ export function DatabaseProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <DatabaseContext.Provider value={{ workouts, loading, onRefresh: refreshWorkouts }}>
+    <DatabaseContext.Provider value={{ workouts, loading, onRefresh: refreshWorkouts, renameWorkout, deleteWorkout }}>
       {children}
     </DatabaseContext.Provider>
   )

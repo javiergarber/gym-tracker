@@ -1,15 +1,17 @@
-import { useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import {
   ActivityIndicator,
   Alert,
   FlatList,
   Platform,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   useWindowDimensions,
 } from "react-native"
+type SwipeableHandle = { close: () => void } | null
 import * as DocumentPicker from "expo-document-picker"
 import { readAsStringAsync } from "expo-file-system/legacy"
 import type { NativeStackScreenProps } from "@react-navigation/native-stack"
@@ -18,9 +20,12 @@ import { importWorkout } from "../services/database"
 import { parseCSV } from "../services/csv-parser"
 import type { CSVParseError } from "../services/csv-parser"
 import type { RootStackParamList } from "../navigation/types"
+import type { Workout } from "../types"
 import { useDatabase } from "../context/DatabaseContext"
 import { colors, spacing, typography, radii } from "../theme"
 import NewWorkoutDialog from "../components/NewWorkoutDialog"
+import RenameWorkoutModal from "../components/RenameWorkoutModal"
+import DeleteWorkoutConfirmDialog from "../components/DeleteWorkoutConfirmDialog"
 import WorkoutCard from "../components/WorkoutCard"
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">
@@ -29,7 +34,10 @@ export default function Home({ navigation }: Props) {
   const [importing, setImporting] = useState(false)
   useWindowDimensions()
   const [showDialog, setShowDialog] = useState(false)
-  const { workouts, onRefresh } = useDatabase()
+  const [renameTarget, setRenameTarget] = useState<Workout | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Workout | null>(null)
+  const [openSwipeable, setOpenSwipeable] = useState<SwipeableHandle>(null)
+  const { workouts, onRefresh, renameWorkout: renameDb, deleteWorkout: deleteDb } = useDatabase()
 
   const handleNewWorkout = () => {
     setShowDialog(true)
@@ -74,6 +82,47 @@ export default function Home({ navigation }: Props) {
     }
   }
 
+  const handleRename = useCallback((workout: Workout) => {
+    setRenameTarget(workout)
+  }, [])
+
+  const handleDelete = useCallback((workout: Workout) => {
+    setDeleteTarget(workout)
+  }, [])
+
+  const handleOpenChange = useCallback((swipeable: SwipeableHandle) => {
+    setOpenSwipeable(swipeable)
+  }, [])
+
+  const handleOverlayPress = useCallback(() => {
+    openSwipeable?.close()
+    setOpenSwipeable(null)
+  }, [openSwipeable])
+
+  const handleRenameConfirm = useCallback(async (name: string) => {
+    if (!renameTarget) return
+    try {
+      await renameDb(renameTarget.id, name)
+      setRenameTarget(null)
+      await onRefresh()
+    } catch (e) {
+      Alert.alert("Error", "No se pudo renombrar el entrenamiento")
+      console.error(e)
+    }
+  }, [renameTarget, renameDb, onRefresh])
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteTarget) return
+    try {
+      await deleteDb(deleteTarget.id)
+      setDeleteTarget(null)
+      await onRefresh()
+    } catch (e) {
+      Alert.alert("Error", "No se pudo eliminar el entrenamiento")
+      console.error(e)
+    }
+  }, [deleteTarget, deleteDb, onRefresh])
+
   return (
     <View style={styles.container}>
       <View style={styles.inner}>
@@ -104,18 +153,27 @@ export default function Home({ navigation }: Props) {
               <WorkoutCard
                 workout={item}
                 onPress={() => navigation.navigate("WorkoutDetail", { workoutId: item.id })}
+                onRename={() => handleRename(item)}
+                onDelete={() => handleDelete(item)}
+                onOpenChange={handleOpenChange}
               />
             )}
           />
         )}
 
-        <TouchableOpacity
-          style={[styles.fab, importing && styles.fabDisabled]}
-          onPress={handleNewWorkout}
-          disabled={importing}
-        >
-          <Text style={styles.fabText}>+</Text>
-        </TouchableOpacity>
+        {openSwipeable && (
+          <Pressable style={styles.overlay} onPress={handleOverlayPress} />
+        )}
+
+        {workouts.length > 0 && (
+          <TouchableOpacity
+            style={[styles.fab, importing && styles.fabDisabled]}
+            onPress={handleNewWorkout}
+            disabled={importing}
+          >
+            <Text style={styles.fabText}>+</Text>
+          </TouchableOpacity>
+        )}
 
         {importing && (
           <View style={styles.importingOverlay}>
@@ -128,6 +186,20 @@ export default function Home({ navigation }: Props) {
           visible={showDialog}
           onConfirm={handleDialogConfirm}
           onCancel={() => setShowDialog(false)}
+        />
+
+        <RenameWorkoutModal
+          visible={renameTarget !== null}
+          initialName={renameTarget?.name ?? ""}
+          onConfirm={handleRenameConfirm}
+          onCancel={() => setRenameTarget(null)}
+        />
+
+        <DeleteWorkoutConfirmDialog
+          visible={deleteTarget !== null}
+          workoutName={deleteTarget?.name ?? ""}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setDeleteTarget(null)}
         />
       </View>
     </View>
@@ -235,5 +307,12 @@ const styles = StyleSheet.create({
     fontSize: typography.body.fontSize,
     color: colors.surface,
     fontWeight: "500",
+  },
+  overlay: {
+    position: "absolute",
+    top: 100,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 })

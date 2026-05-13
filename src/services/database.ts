@@ -105,6 +105,16 @@ export async function getWorkouts() {
   )
 }
 
+export async function renameWorkout(id: number, name: string): Promise<void> {
+  if (!db) throw new Error("Database not initialized")
+  await db.runAsync("UPDATE workouts SET name = ? WHERE id = ?", name, id)
+}
+
+export async function deleteWorkout(id: number): Promise<void> {
+  if (!db) throw new Error("Database not initialized")
+  await db.runAsync("DELETE FROM workouts WHERE id = ?", id)
+}
+
 export async function clearAllData(): Promise<void> {
   if (!db) throw new Error("Database not initialized")
   await db.execAsync("DELETE FROM workouts")
