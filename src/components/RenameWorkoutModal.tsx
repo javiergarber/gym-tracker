@@ -1,7 +1,8 @@
 import { useState } from "react"
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native"
 
-import { colors, typography, radii, spacing } from "../theme"
+import { useTheme } from "../context/ThemeContext"
+import { typography, radii, spacing } from "../tokens"
 
 interface Props {
   visible: boolean
@@ -12,6 +13,7 @@ interface Props {
 
 export default function RenameWorkoutModal({ visible, initialName, onConfirm, onCancel }: Props) {
   const [name, setName] = useState(initialName)
+  const { colors } = useTheme()
 
   const handleConfirm = () => {
     if (name.trim()) {
@@ -28,28 +30,28 @@ export default function RenameWorkoutModal({ visible, initialName, onConfirm, on
 
   return (
     <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.overlay}>
-        <View style={styles.dialog}>
-          <Text style={styles.title}>Renombrar entrenamiento</Text>
-          <Text style={styles.label}>Nuevo nombre</Text>
+      <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
+        <View style={[styles.dialog, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.title, { color: colors.text }]}>Renombrar entrenamiento</Text>
+          <Text style={[styles.label, { color: colors.textTertiary }]}>Nuevo nombre</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { borderColor: colors.border, color: colors.text }]}
             value={name}
             onChangeText={setName}
             placeholder="Nombre del entrenamiento"
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.textMuted}
             autoFocus
           />
           <View style={styles.actions}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel}>
-              <Text style={styles.cancelText}>Cancelar</Text>
+            <TouchableOpacity style={[styles.cancelBtn, { borderColor: colors.border }]} onPress={handleCancel}>
+              <Text style={[styles.cancelText, { color: colors.textTertiary }]}>Cancelar</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.confirmBtn, !isValid && styles.disabledBtn]}
+              style={[styles.confirmBtn, { backgroundColor: colors.primary }, !isValid && { backgroundColor: colors.disabled }]}
               onPress={handleConfirm}
               disabled={!isValid}
             >
-              <Text style={[styles.confirmText, !isValid && styles.disabledText]}>
+              <Text style={[styles.confirmText, { color: colors.surface }]}>
                 Renombrar
               </Text>
             </TouchableOpacity>
@@ -63,13 +65,11 @@ export default function RenameWorkoutModal({ visible, initialName, onConfirm, on
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: colors.overlay,
     justifyContent: "center",
     alignItems: "center",
     padding: spacing.xxl,
   },
   dialog: {
-    backgroundColor: colors.surface,
     borderRadius: radii.xl,
     padding: spacing.xxl,
     width: "100%",
@@ -79,20 +79,16 @@ const styles = StyleSheet.create({
     fontSize: typography.h2.fontSize,
     fontWeight: typography.h2.fontWeight,
     marginBottom: spacing.lg,
-    color: colors.text,
   },
   label: {
     fontSize: typography.caption.fontSize,
-    color: colors.textTertiary,
     marginBottom: spacing.sm,
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radii.sm,
     padding: 14,
     fontSize: typography.body.fontSize,
-    color: colors.text,
     marginBottom: spacing.xl,
   },
   actions: {
@@ -104,29 +100,19 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: radii.sm,
     borderWidth: 1,
-    borderColor: colors.border,
     alignItems: "center",
   },
   cancelText: {
     fontSize: typography.body.fontSize,
-    color: colors.textTertiary,
   },
   confirmBtn: {
     flex: 1,
     paddingVertical: 14,
     borderRadius: radii.sm,
-    backgroundColor: colors.primary,
     alignItems: "center",
-  },
-  disabledBtn: {
-    backgroundColor: colors.disabled,
   },
   confirmText: {
     fontSize: typography.body.fontSize,
-    color: colors.surface,
     fontWeight: "600",
-  },
-  disabledText: {
-    color: colors.surface,
   },
 })

@@ -22,7 +22,8 @@ import type { CSVParseError } from "../services/csv-parser"
 import type { RootStackParamList } from "../navigation/types"
 import type { Workout } from "../types"
 import { useDatabase } from "../context/DatabaseContext"
-import { colors, spacing, typography, radii } from "../theme"
+import { useTheme } from "../context/ThemeContext"
+import { spacing, typography, radii } from "../tokens"
 import NewWorkoutDialog from "../components/NewWorkoutDialog"
 import RenameWorkoutModal from "../components/RenameWorkoutModal"
 import DeleteWorkoutConfirmDialog from "../components/DeleteWorkoutConfirmDialog"
@@ -38,6 +39,7 @@ export default function Home({ navigation }: Props) {
   const [deleteTarget, setDeleteTarget] = useState<Workout | null>(null)
   const [openSwipeable, setOpenSwipeable] = useState<SwipeableHandle>(null)
   const { workouts, onRefresh, renameWorkout: renameDb, deleteWorkout: deleteDb } = useDatabase()
+  const { colors } = useTheme()
 
   const handleNewWorkout = () => {
     setShowDialog(true)
@@ -124,10 +126,10 @@ export default function Home({ navigation }: Props) {
   }, [deleteTarget, deleteDb, onRefresh])
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.inner}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Mis entrenamientos</Text>
+        <View style={[styles.header, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.title, { color: colors.text }]}>Mis entrenamientos</Text>
           <TouchableOpacity
             style={styles.settingsBtn}
             onPress={() => navigation.navigate("Settings")}
@@ -138,10 +140,10 @@ export default function Home({ navigation }: Props) {
 
         {workouts.length === 0 ? (
           <View style={styles.empty}>
-            <Text style={styles.emptyTitle}>No hay entrenamientos todavía</Text>
-            <Text style={styles.emptySubtitle}>¡Crea uno!</Text>
-            <TouchableOpacity style={styles.emptyBtn} onPress={handleNewWorkout}>
-              <Text style={styles.emptyBtnText}>Nuevo entrenamiento</Text>
+            <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>No hay entrenamientos todavía</Text>
+            <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>¡Crea uno!</Text>
+            <TouchableOpacity style={[styles.emptyBtn, { backgroundColor: colors.primary }]} onPress={handleNewWorkout}>
+              <Text style={[styles.emptyBtnText, { color: colors.surface }]}>Nuevo entrenamiento</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -167,18 +169,18 @@ export default function Home({ navigation }: Props) {
 
         {workouts.length > 0 && (
           <TouchableOpacity
-            style={[styles.fab, importing && styles.fabDisabled]}
+            style={[styles.fab, { backgroundColor: colors.primary, shadowColor: colors.shadowPrimary }, importing && { backgroundColor: colors.disabled, shadowColor: colors.disabled }]}
             onPress={handleNewWorkout}
             disabled={importing}
           >
-            <Text style={styles.fabText}>+</Text>
+            <Text style={[styles.fabText, { color: colors.surface }]}>+</Text>
           </TouchableOpacity>
         )}
 
         {importing && (
-          <View style={styles.importingOverlay}>
+          <View style={[styles.importingOverlay, { backgroundColor: colors.overlayDark }]}>
             <ActivityIndicator size="large" color="#fff" />
-            <Text style={styles.importingText}>Importando entrenamiento...</Text>
+            <Text style={[styles.importingText, { color: colors.surface }]}>Importando entrenamiento...</Text>
           </View>
         )}
 
@@ -210,7 +212,6 @@ const POS = Platform.select({ web: "fixed", default: "absolute" }) as any
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
     alignItems: Platform.OS === "web" ? "center" : undefined,
   },
   inner: {
@@ -222,7 +223,6 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: spacing.lg,
     paddingHorizontal: spacing.xl,
-    backgroundColor: colors.surface,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
@@ -230,7 +230,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: typography.h1.fontSize,
     fontWeight: typography.h1.fontWeight,
-    color: colors.text,
   },
   settingsBtn: {
     padding: spacing.sm,
@@ -247,30 +246,25 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: typography.h2.fontSize,
     fontWeight: typography.h2.fontWeight,
-    color: colors.textSecondary,
     marginBottom: spacing.sm,
   },
   emptySubtitle: {
     fontSize: typography.bodySmall.fontSize,
-    color: colors.textMuted,
     textAlign: "center",
     marginBottom: spacing.xl,
   },
   emptyBtn: {
-    backgroundColor: colors.primary,
     paddingVertical: 14,
     paddingHorizontal: 28,
     borderRadius: radii.sm,
   },
   emptyBtnText: {
-    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },
   list: {
     padding: spacing.lg,
   },
-
   fab: {
     position: POS,
     bottom: spacing.xxxl,
@@ -278,34 +272,25 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: colors.shadowPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
   },
-  fabDisabled: {
-    backgroundColor: colors.disabled,
-    shadowColor: colors.disabled,
-  },
   fabText: {
     fontSize: typography.fab.fontSize,
-    color: colors.surface,
     lineHeight: 30,
   },
   importingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.overlayDark,
     justifyContent: "center",
     alignItems: "center",
   },
   importingText: {
     marginTop: spacing.md,
     fontSize: typography.body.fontSize,
-    color: colors.surface,
     fontWeight: "500",
   },
   overlay: {

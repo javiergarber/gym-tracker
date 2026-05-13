@@ -8,7 +8,8 @@ import {
   StyleSheet,
 } from "react-native"
 
-import { colors, typography, radii, spacing } from "../theme"
+import { useTheme } from "../context/ThemeContext"
+import { typography, radii, spacing } from "../tokens"
 
 interface Props {
   visible: boolean
@@ -18,6 +19,7 @@ interface Props {
 
 export default function NewWorkoutDialog({ visible, onConfirm, onCancel }: Props) {
   const [name, setName] = useState("")
+  const { colors } = useTheme()
 
   const handleConfirm = () => {
     if (name.trim()) {
@@ -35,28 +37,28 @@ export default function NewWorkoutDialog({ visible, onConfirm, onCancel }: Props
 
   return (
     <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.overlay}>
-        <View style={styles.dialog}>
-          <Text style={styles.title}>Nuevo entrenamiento</Text>
-          <Text style={styles.label}>Nombre del entrenamiento</Text>
+      <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
+        <View style={[styles.dialog, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.title, { color: colors.text }]}>Nuevo entrenamiento</Text>
+          <Text style={[styles.label, { color: colors.textTertiary }]}>Nombre del entrenamiento</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { borderColor: colors.border, color: colors.text }]}
             value={name}
             onChangeText={setName}
             placeholder="Ej: Junio 2026, Semana 1..."
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.textMuted}
             autoFocus
           />
           <View style={styles.actions}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel}>
-              <Text style={styles.cancelText}>Cancelar</Text>
+            <TouchableOpacity style={[styles.cancelBtn, { borderColor: colors.border }]} onPress={handleCancel}>
+              <Text style={[styles.cancelText, { color: colors.textTertiary }]}>Cancelar</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.confirmBtn, !isValid && styles.disabledBtn]}
+              style={[styles.confirmBtn, { backgroundColor: colors.primary }, !isValid && { backgroundColor: colors.disabled }]}
               onPress={handleConfirm}
               disabled={!isValid}
             >
-              <Text style={[styles.confirmText, !isValid && styles.disabledText]}>
+              <Text style={[styles.confirmText, { color: colors.surface }]}>
                 Seleccionar archivo
               </Text>
             </TouchableOpacity>
@@ -70,13 +72,11 @@ export default function NewWorkoutDialog({ visible, onConfirm, onCancel }: Props
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: colors.overlay,
     justifyContent: "center",
     alignItems: "center",
     padding: spacing.xxl,
   },
   dialog: {
-    backgroundColor: colors.surface,
     borderRadius: radii.xl,
     padding: spacing.xxl,
     width: "100%",
@@ -86,20 +86,16 @@ const styles = StyleSheet.create({
     fontSize: typography.h2.fontSize,
     fontWeight: typography.h2.fontWeight,
     marginBottom: spacing.lg,
-    color: colors.text,
   },
   label: {
     fontSize: typography.caption.fontSize,
-    color: colors.textTertiary,
     marginBottom: spacing.sm,
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radii.sm,
     padding: 14,
     fontSize: typography.body.fontSize,
-    color: colors.text,
     marginBottom: spacing.xl,
   },
   actions: {
@@ -111,29 +107,19 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: radii.sm,
     borderWidth: 1,
-    borderColor: colors.border,
     alignItems: "center",
   },
   cancelText: {
     fontSize: typography.body.fontSize,
-    color: colors.textTertiary,
   },
   confirmBtn: {
     flex: 1,
     paddingVertical: 14,
     borderRadius: radii.sm,
-    backgroundColor: colors.primary,
     alignItems: "center",
-  },
-  disabledBtn: {
-    backgroundColor: colors.disabled,
   },
   confirmText: {
     fontSize: typography.body.fontSize,
-    color: colors.surface,
     fontWeight: "600",
-  },
-  disabledText: {
-    color: colors.surface,
   },
 })

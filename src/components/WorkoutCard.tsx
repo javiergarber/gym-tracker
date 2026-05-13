@@ -1,8 +1,10 @@
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { TouchableOpacity, Text, View, StyleSheet, Animated } from "react-native"
+import { LinearGradient } from "expo-linear-gradient"
 import Swipeable from "react-native-gesture-handler/Swipeable"
 
-import { colors, typography } from "../theme"
+import { useTheme } from "../context/ThemeContext"
+import { typography } from "../tokens"
 import type { Workout } from "../types"
 
 interface Props {
@@ -13,12 +15,10 @@ interface Props {
   onOpenChange?: (swipeable: Swipeable | null) => void
 }
 
-const ACCENT_COLORS = ["#007AFF", "#34C759", "#FF9500", "#FF3B30", "#AF52DE", "#5AC8FA", "#FF2D55"]
-
 export default function WorkoutCard({ workout, onPress, onRename, onDelete, onOpenChange }: Props) {
   const swipeableRef = useRef<Swipeable>(null)
-  const colorIndex = workout.id % ACCENT_COLORS.length
-  const accentColor = ACCENT_COLORS[colorIndex]
+  const [swiped, setSwiped] = useState(false)
+  const { colors } = useTheme()
 
   const formattedDate = new Date(workout.created_at).toLocaleDateString("es-ES", {
     year: "numeric",
@@ -30,20 +30,20 @@ export default function WorkoutCard({ workout, onPress, onRename, onDelete, onOp
     _progress: Animated.AnimatedInterpolation<number>,
     _dragX: Animated.AnimatedInterpolation<number>,
   ) => (
-    <View style={styles.actionsContainer}>
+    <View style={[styles.actionsContainer, { backgroundColor: colors.backgroundSecondary }]}>
       <TouchableOpacity
-        style={[styles.actionBtn, styles.renameBtn]}
+        style={[styles.actionBtn, styles.renameBtn, { backgroundColor: colors.backgroundSecondary }]}
         onPress={() => { swipeableRef.current?.close(); onRename() }}
       >
         <Text style={styles.actionIcon}>✏️</Text>
-        <Text style={styles.actionText}>Renombrar</Text>
+        <Text style={[styles.actionText, { color: colors.text }]}>Renombrar</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.actionBtn, styles.deleteBtn]}
         onPress={() => { swipeableRef.current?.close(); onDelete() }}
       >
         <Text style={styles.actionIcon}>🗑️</Text>
-        <Text style={styles.actionText}>Eliminar</Text>
+        <Text style={[styles.actionText, { color: "#fff" }]}>Eliminar</Text>
       </TouchableOpacity>
     </View>
   )
@@ -53,23 +53,30 @@ export default function WorkoutCard({ workout, onPress, onRename, onDelete, onOp
       ref={swipeableRef}
       renderRightActions={renderRightActions}
       overshootRight={false}
+      onSwipeableWillOpen={() => setSwiped(true)}
       onSwipeableOpen={(_dir, swipeable) => onOpenChange?.(swipeable)}
-      onSwipeableClose={() => onOpenChange?.(null)}
+      onSwipeableClose={() => {
+        setSwiped(false)
+        onOpenChange?.(null)
+      }}
     >
       <TouchableOpacity
-        style={styles.card}
+        style={[styles.card, styles.shadow, { backgroundColor: colors.surface, shadowColor: colors.shadow }, swiped ? styles.cardSwiped : styles.cardResting]}
         onPress={onPress}
         onLongPress={() => swipeableRef.current?.openRight()}
         activeOpacity={0.7}
       >
-        <View style={[styles.accent, { backgroundColor: accentColor }]} />
+        <LinearGradient
+          colors={[colors.primary, colors.success]}
+          style={styles.accent}
+        />
         <View style={styles.body}>
-          <Text style={styles.title} numberOfLines={1}>
+          <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
             {workout.name}
           </Text>
-          <Text style={styles.date}>{formattedDate}</Text>
+          <Text style={[styles.date, { color: colors.textDate }]}>{formattedDate}</Text>
         </View>
-        <Text style={styles.chevron}>›</Text>
+        <Text style={[styles.chevron, { color: colors.border }]}>›</Text>
       </TouchableOpacity>
     </Swipeable>
   )
@@ -79,16 +86,23 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.surface,
+    marginBottom: 12,
+    overflow: "hidden",
+  },
+  cardResting: {
+    borderRadius: 14,
+  },
+  cardSwiped: {
     borderTopLeftRadius: 14,
     borderBottomLeftRadius: 14,
-    marginBottom: 12,
-    shadowColor: colors.shadow,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  shadow: {
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.07,
     shadowRadius: 6,
     elevation: 3,
-    overflow: "hidden",
   },
   accent: {
     width: 5,
@@ -102,23 +116,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: typography.h3.fontSize,
     fontWeight: typography.h3.fontWeight,
-    color: colors.text,
     marginBottom: 4,
   },
   date: {
     fontSize: typography.captionSmall.fontSize,
-    color: colors.textDate,
   },
   chevron: {
     fontSize: 22,
-    color: colors.border,
     marginRight: 16,
     fontWeight: "300",
   },
   actionsContainer: {
     flexDirection: "row",
     marginBottom: 12,
-    backgroundColor: "#e8e8e8",
     borderTopRightRadius: 14,
     borderBottomRightRadius: 14,
   },
@@ -129,7 +139,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   renameBtn: {
-    backgroundColor: "transparent",
+    borderTopLeftRadius: 14,
+    borderBottomLeftRadius: 14,
   },
   deleteBtn: {
     backgroundColor: "#FF3B30",
@@ -141,7 +152,6 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   actionText: {
-    color: "#666",
     fontSize: 11,
     fontWeight: "600",
   },

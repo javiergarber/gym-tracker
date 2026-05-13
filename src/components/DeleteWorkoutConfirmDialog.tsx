@@ -1,6 +1,7 @@
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native"
 
-import { colors, typography, radii, spacing } from "../theme"
+import { useTheme } from "../context/ThemeContext"
+import { typography, radii, spacing } from "../tokens"
 
 interface Props {
   visible: boolean
@@ -10,17 +11,19 @@ interface Props {
 }
 
 export default function DeleteWorkoutConfirmDialog({ visible, workoutName, onConfirm, onCancel }: Props) {
+  const { colors } = useTheme()
+
   return (
     <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.overlay}>
-        <View style={styles.dialog}>
-          <Text style={styles.title}>Eliminar entrenamiento</Text>
-          <Text style={styles.message}>
+      <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
+        <View style={[styles.dialog, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.title, { color: colors.text }]}>Eliminar entrenamiento</Text>
+          <Text style={[styles.message, { color: colors.textTertiary }]}>
             ¿Estás seguro de que quieres eliminar "{workoutName}"? Esta acción no se puede deshacer.
           </Text>
           <View style={styles.actions}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
-              <Text style={styles.cancelText}>Cancelar</Text>
+            <TouchableOpacity style={[styles.cancelBtn, { borderColor: colors.border }]} onPress={onCancel}>
+              <Text style={[styles.cancelText, { color: colors.textTertiary }]}>Cancelar</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.deleteBtn} onPress={onConfirm}>
               <Text style={styles.deleteText}>Eliminar</Text>
@@ -35,13 +38,11 @@ export default function DeleteWorkoutConfirmDialog({ visible, workoutName, onCon
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: colors.overlay,
     justifyContent: "center",
     alignItems: "center",
     padding: spacing.xxl,
   },
   dialog: {
-    backgroundColor: colors.surface,
     borderRadius: radii.xl,
     padding: spacing.xxl,
     width: "100%",
@@ -51,11 +52,9 @@ const styles = StyleSheet.create({
     fontSize: typography.h2.fontSize,
     fontWeight: typography.h2.fontWeight,
     marginBottom: spacing.lg,
-    color: colors.text,
   },
   message: {
     fontSize: typography.body.fontSize,
-    color: colors.textTertiary,
     marginBottom: spacing.xl,
     lineHeight: 22,
   },
@@ -68,12 +67,10 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: radii.sm,
     borderWidth: 1,
-    borderColor: colors.border,
     alignItems: "center",
   },
   cancelText: {
     fontSize: typography.body.fontSize,
-    color: colors.textTertiary,
   },
   deleteBtn: {
     flex: 1,
@@ -84,7 +81,7 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     fontSize: typography.body.fontSize,
-    color: colors.surface,
+    color: "#fff",
     fontWeight: "600",
   },
 })

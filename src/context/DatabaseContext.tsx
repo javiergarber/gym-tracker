@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, View, StyleSheet } from "react-native"
 
 import { initDatabase, getWorkouts, renameWorkout, deleteWorkout } from "../services/database"
 import { seedDatabase } from "../services/seed"
-import { colors } from "../theme"
+import { useTheme } from "./ThemeContext"
 import type { Workout } from "../types"
 
 interface DatabaseContextValue {
@@ -19,6 +19,7 @@ const DatabaseContext = createContext<DatabaseContextValue | null>(null)
 export function DatabaseProvider({ children }: { children: ReactNode }) {
   const [workouts, setWorkouts] = useState<Workout[]>([])
   const [loading, setLoading] = useState(true)
+  const { colors } = useTheme()
 
   const refreshWorkouts = useCallback(async () => {
     try {
@@ -44,8 +45,8 @@ export function DatabaseProvider({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#007AFF" />
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     )
   }
@@ -68,6 +69,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.background,
   },
 })

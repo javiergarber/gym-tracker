@@ -3,20 +3,28 @@ import { NavigationContainer } from "@react-navigation/native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { Platform, View } from "react-native"
 
+import { ThemeProvider, useTheme } from "./src/context/ThemeContext"
 import { DatabaseProvider } from "./src/context/DatabaseContext"
 import Navigator from "./src/navigation/Navigator"
 
 const Root = Platform.OS === "web" ? View : GestureHandlerRootView
 
+function StatusBarWrapper() {
+  const { theme } = useTheme()
+  return <StatusBar style={theme.dark ? "light" : "dark"} />
+}
+
 export default function App() {
   return (
     <Root style={{ flex: 1 }}>
-      <StatusBar style="dark" />
-      <DatabaseProvider>
-        <NavigationContainer>
-          <Navigator />
-        </NavigationContainer>
-      </DatabaseProvider>
+      <ThemeProvider>
+        <StatusBarWrapper />
+        <DatabaseProvider>
+          <NavigationContainer>
+            <Navigator />
+          </NavigationContainer>
+        </DatabaseProvider>
+      </ThemeProvider>
     </Root>
   )
 }
