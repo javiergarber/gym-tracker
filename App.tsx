@@ -5,6 +5,7 @@ import { Platform, View } from "react-native"
 
 import { ThemeProvider, useTheme } from "./src/context/ThemeContext"
 import { DatabaseProvider } from "./src/context/DatabaseContext"
+import { DevProvider } from "./src/dev/DevProvider"
 import Navigator from "./src/navigation/Navigator"
 
 const Root = Platform.OS === "web" ? View : GestureHandlerRootView
@@ -20,9 +21,11 @@ export default function App() {
       <ThemeProvider>
         <StatusBarWrapper />
         <DatabaseProvider>
-          <NavigationContainer>
-            <Navigator />
-          </NavigationContainer>
+          <DevProvider>
+            <NavigationContainer>
+              <Navigator />
+            </NavigationContainer>
+          </DevProvider>
         </DatabaseProvider>
       </ThemeProvider>
     </Root>

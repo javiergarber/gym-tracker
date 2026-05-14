@@ -2,7 +2,6 @@ import { createContext, useContext, useState, useCallback, useEffect, type React
 import { ActivityIndicator, Alert, View, StyleSheet } from "react-native"
 
 import { initDatabase, getWorkouts, renameWorkout, deleteWorkout } from "../services/database"
-import { seedDatabase } from "../services/seed"
 import { useTheme } from "./ThemeContext"
 import type { Workout } from "../types"
 
@@ -32,10 +31,7 @@ export function DatabaseProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     initDatabase()
-      .then(async () => {
-        await seedDatabase()
-        return refreshWorkouts()
-      })
+      .then(() => refreshWorkouts())
       .catch((e) => {
         Alert.alert("Error", "No se pudo inicializar la base de datos")
         console.error(e)

@@ -3,9 +3,25 @@ import type { ParsedCSV } from "./csv-parser"
 import type { Workout } from "../types"
 
 let db: SQLite.SQLiteDatabase | null = null
+let dbListeners: Set<() => void> = new Set()
+
+export function getDb() {
+  return db
+}
+
+export function subscribeToDb(callback: () => void) {
+  dbListeners.add(callback)
+  return () => dbListeners.delete(callback)
+}
+
+function notifyDbReady() {
+  dbListeners.forEach((cb) => cb())
+}
 
 export async function initDatabase(): Promise<void> {
   db = await SQLite.openDatabaseAsync("gym-tracker.db")
+
+  await db.execAsync("PRAGMA foreign_keys = ON")
 
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS workouts (
@@ -41,6 +57,9 @@ export async function initDatabase(): Promise<void> {
       FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
     );
   `)
+
+  notifyDbReady()
+  return db
 }
 
 function parseSeriesCount(seriesStr: string): number {
@@ -135,7 +154,12 @@ export async function deleteWorkout(id: number): Promise<void> {
 
 export async function clearAllData(): Promise<void> {
   if (!db) throw new Error("Database not initialized")
+  await db.execAsync("PRAGMA foreign_keys = ON")
+  await db.execAsync("DELETE FROM sets")
+  await db.execAsync("DELETE FROM exercises")
+  await db.execAsync("DELETE FROM days")
   await db.execAsync("DELETE FROM workouts")
+  await db.execAsync("DELETE FROM sqlite_sequence")
 }
 
 export async function dumpDatabase() {
