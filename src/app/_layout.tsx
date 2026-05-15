@@ -1,5 +1,6 @@
+import { useMemo, useEffect } from "react"
 import { StatusBar } from "expo-status-bar"
-import { NavigationContainer } from "@react-navigation/native"
+import { NavigationContainer, DefaultTheme, DarkTheme } from "@react-navigation/native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { Platform, View } from "react-native"
 
@@ -12,7 +13,40 @@ const Root = Platform.OS === "web" ? View : GestureHandlerRootView
 
 function StatusBarWrapper() {
   const { theme } = useTheme()
+
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      try {
+        const { setBackgroundColorAsync } = require("expo-system-ui") as {
+          setBackgroundColorAsync: (color: string) => Promise<void>
+        }
+        setBackgroundColorAsync(theme.colors.background)
+      } catch {}
+    }
+  }, [theme.colors.background])
+
   return <StatusBar style={theme.dark ? "light" : "dark"} />
+}
+
+function ThemedNavigationContainer({ children }: { children: React.ReactNode }) {
+  const { theme } = useTheme()
+
+  const navTheme = useMemo(
+    () => ({
+      ...(theme.dark ? DarkTheme : DefaultTheme),
+      colors: {
+        ...(theme.dark ? DarkTheme.colors : DefaultTheme.colors),
+        background: theme.colors.background,
+        card: theme.colors.surface,
+        text: theme.colors.text,
+        border: theme.colors.border,
+        primary: theme.colors.primary,
+      },
+    }),
+    [theme],
+  )
+
+  return <NavigationContainer theme={navTheme}>{children}</NavigationContainer>
 }
 
 export default function App() {
@@ -22,9 +56,9 @@ export default function App() {
         <StatusBarWrapper />
         <DatabaseProvider>
           <DevProvider>
-            <NavigationContainer>
+            <ThemedNavigationContainer>
               <Navigator />
-            </NavigationContainer>
+            </ThemedNavigationContainer>
           </DevProvider>
         </DatabaseProvider>
       </ThemeProvider>

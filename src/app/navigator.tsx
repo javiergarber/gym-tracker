@@ -5,6 +5,8 @@ import type { RootStackParamList } from "@/app/navigator.types"
 import HomeScreen from "@/screens/home/index"
 import WorkoutDetailScreen from "@/screens/workout-detail"
 import DayDetailScreen from "@/screens/day-detail"
+import ExerciseHistoryScreen from "@/screens/exercise-history"
+import WorkoutOngoingScreen from "@/screens/workout-ongoing"
 import SettingsScreen from "@/screens/settings"
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
@@ -29,12 +31,22 @@ export default function Navigator() {
       <Stack.Screen
         name="WorkoutDetail"
         component={WorkoutDetailScreen}
-        options={{ title: "Entrenamiento" }}
+        options={{ title: "" }}
       />
       <Stack.Screen
         name="DayDetail"
         component={DayDetailScreen}
-        options={{ title: "Día" }}
+        options={{ title: "" }}
+      />
+      <Stack.Screen
+        name="ExerciseHistory"
+        component={ExerciseHistoryScreen}
+        options={{ title: "Historial" }}
+      />
+      <Stack.Screen
+        name="WorkoutOngoing"
+        component={WorkoutOngoingScreen}
+        options={{ title: "Entrenamiento" }}
       />
       <Stack.Screen
         name="Settings"

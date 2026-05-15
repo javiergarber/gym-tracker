@@ -33,5 +33,9 @@
 - Run `npx expo install <pkg>` for compatible native packages
 - Compatible with Expo Go for rapid testing on device
 
+## Native module rebuild reminder
+- Cada vez que se instale o modifique un módulo nativo (nuevo `expo install`, cambio en `app.json` plugins, etc.), **avisar al usuario** que necesita ejecutar `npx expo run:android` (o iOS) para rebuild antes de probar en dispositivo/emulador nativo.
+- Los cambios que solo afectan a web (`npm run web`) no necesitan rebuild.
+
 ## Plan management
 - When finalizing a plan in `docs/plans/`, mark all checkboxes as `[x]`, add a `✅ **Finalizado**` status line, and prefix the filename with `✅` (e.g. `✅2026_05_13-importar-csv.md`).

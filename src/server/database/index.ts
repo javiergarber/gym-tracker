@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite"
 import type { ParsedCSV } from "./csv-parser"
-import type { Workout } from "@/constants/types"
+import type { Workout, Day, ExerciseWithSets } from "@/constants/types"
 
 let db: SQLite.SQLiteDatabase | null = null
 let dbListeners: Set<() => void> = new Set()
@@ -124,6 +124,38 @@ export async function getWorkoutById(id: number) {
     id
   )
   return row as Workout | null
+}
+
+export async function getDayById(dayId: number) {
+  if (!db) throw new Error("Database not initialized")
+  const row = await db.getFirstAsync(
+    "SELECT id, workout_id, name, subtitle, sort_order FROM days WHERE id = ?",
+    dayId
+  )
+  return row as Day | null
+}
+
+export async function getDayExercises(dayId: number): Promise<ExerciseWithSets[]> {
+  if (!db) throw new Error("Database not initialized")
+
+  const exercises = await db.getAllAsync(
+    "SELECT id, day_id, name, series, sort_order FROM exercises WHERE day_id = ? ORDER BY sort_order ASC",
+    dayId
+  ) as Omit<ExerciseWithSets, "sets">[]
+
+  if (exercises.length === 0) return []
+
+  const exerciseIds = exercises.map((e) => e.id)
+  const placeholders = exerciseIds.map(() => "?").join(",")
+  const sets = await db.getAllAsync(
+    `SELECT id, exercise_id, set_number, reps, sort_order FROM sets WHERE exercise_id IN (${placeholders}) ORDER BY sort_order ASC`,
+    ...exerciseIds
+  ) as ExerciseWithSets["sets"]
+
+  return exercises.map((ex) => ({
+    ...ex,
+    sets: sets.filter((s) => s.exercise_id === ex.id),
+  }))
 }
 
 export async function getWorkoutDays(workoutId: number) {
