@@ -5,6 +5,7 @@ export interface ThemeColors {
   backgroundSecondary: string
   surface: string
   primary: string
+  accent: string
   text: string
   textSecondary: string
   textTertiary: string
@@ -33,6 +34,7 @@ export const themes: Record<ThemeName, Theme> = {
       backgroundSecondary: "#27272C",
       surface: "#1C1C24",
       primary: "#7C3AED",
+      accent: "#14B8A6",
       text: "#FFFFFF",
       textSecondary: "#D4D4D8",
       textTertiary: "#A1A1AA",
@@ -55,6 +57,7 @@ export const themes: Record<ThemeName, Theme> = {
       backgroundSecondary: "#E2E8F0",
       surface: "#FFFFFF",
       primary: "#14B8A6",
+      accent: "#0D9488",
       text: "#0F172A",
       textSecondary: "#334155",
       textTertiary: "#64748B",

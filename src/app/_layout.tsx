@@ -1,8 +1,10 @@
-import { useMemo, useEffect } from "react"
+import { useMemo, useEffect, useCallback } from "react"
 import { StatusBar } from "expo-status-bar"
 import { NavigationContainer, DefaultTheme, DarkTheme } from "@react-navigation/native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { Platform, View } from "react-native"
+import * as SplashScreen from "expo-splash-screen"
+import { useFonts, Roboto_700Bold } from "@expo-google-fonts/roboto"
 
 import { ThemeProvider, useTheme } from "@/hooks/use-theme"
 import { DatabaseProvider } from "@/hooks/use-database"
@@ -10,6 +12,8 @@ import { DevProvider } from "@/hooks/dev-provider"
 import Navigator from "@/app/navigator"
 
 const Root = Platform.OS === "web" ? View : GestureHandlerRootView
+
+SplashScreen.preventAutoHideAsync()
 
 function StatusBarWrapper() {
   const { theme } = useTheme()
@@ -50,8 +54,17 @@ function ThemedNavigationContainer({ children }: { children: React.ReactNode }) 
 }
 
 export default function App() {
+  const [fontsLoaded] = useFonts({ Roboto_700Bold })
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync()
+    }
+  }, [fontsLoaded])
+
+  if (!fontsLoaded) return null
+
   return (
-    <Root style={{ flex: 1 }}>
+    <Root style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <ThemeProvider>
         <StatusBarWrapper />
         <DatabaseProvider>

@@ -46,7 +46,7 @@ export default function Navigator() {
       <Stack.Screen
         name="WorkoutOngoing"
         component={WorkoutOngoingScreen}
-        options={{ title: "Entrenamiento" }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Settings"

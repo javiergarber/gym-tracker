@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite"
 import type { ParsedCSV } from "./csv-parser"
-import type { Workout, Day, ExerciseWithSets } from "@/constants/types"
+import type { Workout, Day, ExerciseWithSets, WorkoutSession, SessionSet } from "@/constants/types"
 
 let db: SQLite.SQLiteDatabase | null = null
 let dbListeners: Set<() => void> = new Set()
@@ -54,6 +54,27 @@ export async function initDatabase(): Promise<void> {
       set_number INTEGER NOT NULL,
       reps TEXT,
       sort_order INTEGER DEFAULT 0,
+      FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS workout_sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      day_id INTEGER NOT NULL,
+      started_at TEXT DEFAULT (datetime('now')),
+      ended_at TEXT,
+      completed INTEGER DEFAULT 0,
+      FOREIGN KEY (day_id) REFERENCES days(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS session_sets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id INTEGER NOT NULL,
+      exercise_id INTEGER NOT NULL,
+      set_index INTEGER NOT NULL,
+      weight REAL NOT NULL,
+      rir_label TEXT NOT NULL,
+      logged_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (session_id) REFERENCES workout_sessions(id) ON DELETE CASCADE,
       FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
     );
   `)
@@ -158,6 +179,102 @@ export async function getDayExercises(dayId: number): Promise<ExerciseWithSets[]
   }))
 }
 
+export async function createSession(dayId: number): Promise<number> {
+  if (!db) throw new Error("Database not initialized")
+  const result = await db.runAsync(
+    "INSERT INTO workout_sessions (day_id) VALUES (?)",
+    dayId
+  )
+  return Number(result.lastInsertRowId)
+}
+
+export async function logSet(
+  sessionId: number,
+  exerciseId: number,
+  setIndex: number,
+  weight: number,
+  rirLabel: string
+): Promise<number> {
+  if (!db) throw new Error("Database not initialized")
+  const result = await db.runAsync(
+    "INSERT INTO session_sets (session_id, exercise_id, set_index, weight, rir_label) VALUES (?, ?, ?, ?, ?)",
+    sessionId,
+    exerciseId,
+    setIndex,
+    weight,
+    rirLabel
+  )
+  return Number(result.lastInsertRowId)
+}
+
+export async function getSessionSets(sessionId: number, exerciseId: number): Promise<SessionSet[]> {
+  if (!db) throw new Error("Database not initialized")
+  return db.getAllAsync(
+    "SELECT id, session_id, exercise_id, set_index, weight, rir_label, logged_at FROM session_sets WHERE session_id = ? AND exercise_id = ? ORDER BY set_index ASC",
+    sessionId,
+    exerciseId
+  ) as Promise<SessionSet[]>
+}
+
+export async function getPreviousSessionWeights(dayId: number): Promise<Record<number, { weight: number; rirLabel: string }[]>> {
+  if (!db) throw new Error("Database not initialized")
+
+  const lastSessionId = await db.getFirstAsync(
+    "SELECT id FROM workout_sessions WHERE day_id = ? AND completed = 1 ORDER BY ended_at DESC LIMIT 1",
+    dayId
+  ) as { id: number } | null
+
+  if (!lastSessionId) return {}
+
+  const rows = await db.getAllAsync(
+    "SELECT exercise_id, weight, rir_label FROM session_sets WHERE session_id = ? ORDER BY set_index ASC",
+    lastSessionId.id
+  ) as { exercise_id: number; weight: number; rir_label: string }[]
+
+  const result: Record<number, { weight: number; rirLabel: string }[]> = {}
+  for (const row of rows) {
+    if (!result[row.exercise_id]) result[row.exercise_id] = []
+    result[row.exercise_id].push({ weight: row.weight, rirLabel: row.rir_label })
+  }
+  return result
+}
+
+export async function getLastWeightForExercise(exerciseId: number): Promise<number | null> {
+  if (!db) throw new Error("Database not initialized")
+  const row = await db.getFirstAsync(
+    "SELECT weight FROM session_sets WHERE exercise_id = ? ORDER BY logged_at DESC LIMIT 1",
+    exerciseId
+  ) as { weight: number } | null
+  return row?.weight ?? null
+}
+
+export async function updateSessionSet(
+  id: number,
+  weight: number,
+  rirLabel: string
+): Promise<void> {
+  if (!db) throw new Error("Database not initialized")
+  await db.runAsync(
+    "UPDATE session_sets SET weight = ?, rir_label = ? WHERE id = ?",
+    weight,
+    rirLabel,
+    id
+  )
+}
+
+export async function deleteSessionSet(id: number): Promise<void> {
+  if (!db) throw new Error("Database not initialized")
+  await db.runAsync("DELETE FROM session_sets WHERE id = ?", id)
+}
+
+export async function completeSession(sessionId: number): Promise<void> {
+  if (!db) throw new Error("Database not initialized")
+  await db.runAsync(
+    "UPDATE workout_sessions SET completed = 1, ended_at = datetime('now') WHERE id = ?",
+    sessionId
+  )
+}
+
 export async function getWorkoutDays(workoutId: number) {
   if (!db) throw new Error("Database not initialized")
   return db.getAllAsync(
@@ -186,6 +303,8 @@ export async function deleteWorkout(id: number): Promise<void> {
 export async function clearAllData(): Promise<void> {
   if (!db) throw new Error("Database not initialized")
   await db.execAsync("PRAGMA foreign_keys = ON")
+  await db.execAsync("DELETE FROM session_sets")
+  await db.execAsync("DELETE FROM workout_sessions")
   await db.execAsync("DELETE FROM sets")
   await db.execAsync("DELETE FROM exercises")
   await db.execAsync("DELETE FROM days")
@@ -212,7 +331,15 @@ export async function dumpDatabase() {
   const sets = await db.getAllAsync("SELECT * FROM sets")
   console.log("\n=== sets ===")
   console.table(sets)
+
+  const sessions = await db.getAllAsync("SELECT * FROM workout_sessions")
+  console.log("\n=== workout_sessions ===")
+  console.table(sessions)
+
+  const sessionSets = await db.getAllAsync("SELECT * FROM session_sets")
+  console.log("\n=== session_sets ===")
+  console.table(sessionSets)
   console.log("====================================\n")
 
-  return { workouts, days, exercises, sets }
+  return { workouts, days, exercises, sets, sessions, sessionSets }
 }

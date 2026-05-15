@@ -2,9 +2,12 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import AsyncStorage from "@react-native-async-storage/async-storage"
 
 import { themes, type ThemeName, type Theme, type ThemeColors } from "@/constants/theme"
+import { DEFAULTS, VALID_THEMES, VALID_REST_TIMERS, DECIMAL_STEP_OPTIONS } from "@/constants/defaults"
 
 const STORAGE_KEY = "theme"
 const REST_TIMER_KEY = "restTimer"
+const DEFAULT_WEIGHT_KEY = "defaultWeight"
+const DECIMAL_STEP_KEY = "decimalStep"
 
 interface ThemeContextValue {
   themeName: ThemeName
@@ -13,29 +16,65 @@ interface ThemeContextValue {
   setThemeName: (name: ThemeName) => Promise<void>
   restTimer: number
   setRestTimer: (seconds: number) => Promise<void>
+  defaultWeight: number
+  setDefaultWeight: (weight: number) => Promise<void>
+  decimalStep: number
+  setDecimalStep: (step: number) => Promise<void>
+  resetToDefaults: () => Promise<void>
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [themeName, setThemeNameState] = useState<ThemeName>("negroNeon")
-  const [restTimer, setRestTimerState] = useState(90)
+  const [themeName, setThemeNameState] = useState<ThemeName>(DEFAULTS.themeName)
+  const [restTimer, setRestTimerState] = useState<number>(DEFAULTS.restTimer)
+  const [defaultWeight, setDefaultWeightState] = useState<number>(DEFAULTS.defaultWeight)
+  const [decimalStep, setDecimalStepState] = useState<number>(DEFAULTS.decimalStep)
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((saved) => {
-      if (saved === "negroNeon" || saved === "azul") {
-        setThemeNameState(saved)
+      if (VALID_THEMES.includes(saved as ThemeName)) {
+        setThemeNameState(saved as ThemeName)
       }
     })
     AsyncStorage.getItem(REST_TIMER_KEY).then((saved) => {
       if (saved) {
         const num = Number(saved)
-        if ([60, 90, 120].includes(num)) {
+        if (VALID_REST_TIMERS.includes(num)) {
           setRestTimerState(num)
         }
       }
+    })
+    AsyncStorage.getItem(DEFAULT_WEIGHT_KEY).then((saved) => {
+      if (saved) {
+        const num = Number(saved)
+        if (!isNaN(num) && num > 0) {
+          setDefaultWeightState(num)
+        }
+      }
+    })
+    AsyncStorage.getItem(DECIMAL_STEP_KEY).then((saved) => {
+      if (saved) {
+        const num = Number(saved)
+        if (DECIMAL_STEP_OPTIONS.includes(num)) {
+          setDecimalStepState(num)
+        }
+      }
     }).finally(() => setLoaded(true))
+  }, [])
+
+  const resetToDefaults = useCallback(async () => {
+    setThemeNameState(DEFAULTS.themeName)
+    setRestTimerState(DEFAULTS.restTimer as number)
+    setDefaultWeightState(DEFAULTS.defaultWeight as number)
+    setDecimalStepState(DEFAULTS.decimalStep as number)
+    await AsyncStorage.multiSet([
+      [STORAGE_KEY, DEFAULTS.themeName],
+      [REST_TIMER_KEY, String(DEFAULTS.restTimer)],
+      [DEFAULT_WEIGHT_KEY, String(DEFAULTS.defaultWeight)],
+      [DECIMAL_STEP_KEY, String(DEFAULTS.decimalStep)],
+    ])
   }, [])
 
   const setThemeName = useCallback(async (name: ThemeName) => {
@@ -46,6 +85,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const setRestTimer = useCallback(async (seconds: number) => {
     setRestTimerState(seconds)
     await AsyncStorage.setItem(REST_TIMER_KEY, String(seconds))
+  }, [])
+
+  const setDefaultWeight = useCallback(async (weight: number) => {
+    setDefaultWeightState(weight)
+    await AsyncStorage.setItem(DEFAULT_WEIGHT_KEY, String(weight))
+  }, [])
+
+  const setDecimalStep = useCallback(async (step: number) => {
+    setDecimalStepState(step)
+    await AsyncStorage.setItem(DECIMAL_STEP_KEY, String(step))
   }, [])
 
   if (!loaded) return null
@@ -59,6 +108,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setThemeName,
         restTimer,
         setRestTimer,
+        defaultWeight,
+        setDefaultWeight,
+        decimalStep,
+        setDecimalStep,
+        resetToDefaults,
       }}
     >
       {children}

@@ -30,7 +30,9 @@
     "plugins": [
       "expo-sqlite",
       "expo-asset",
-      "expo-system-ui"
+      "expo-system-ui",
+      "expo-font",
+      "expo-audio"
     ]
   }
 }

@@ -4,12 +4,13 @@ import { View, Text, ScrollView, StyleSheet, Alert } from "react-native"
 import { useTheme } from "@/hooks/use-theme"
 import { themes, type ThemeName } from "@/constants/theme"
 import { spacing, typography, radii } from "@/constants/tokens"
+import { DEFAULTS, VALID_REST_TIMERS, DEFAULT_WEIGHT_OPTIONS, DECIMAL_STEP_OPTIONS } from "@/constants/defaults"
 import HapticButton from "@/components/haptic-button"
 import { useDatabase } from "@/hooks/use-database"
 import { clearAllData } from "@/server/database"
 import { seedDatabase } from "@/server/database/seed"
 
-const REST_OPTIONS = [60, 90, 120]
+const REST_OPTIONS = VALID_REST_TIMERS
 
 function ThemePreviewCard({ name, selected, onSelect }: { name: ThemeName; selected: boolean; onSelect: () => void }) {
   const t = themes[name]
@@ -42,7 +43,7 @@ function ThemePreviewCard({ name, selected, onSelect }: { name: ThemeName; selec
 
 export default function SettingsScreen() {
   const [loadingDev, setLoadingDev] = useState(false)
-  const { themeName, setThemeName, restTimer, setRestTimer } = useTheme()
+  const { themeName, setThemeName, restTimer, setRestTimer, defaultWeight, setDefaultWeight, decimalStep, setDecimalStep, resetToDefaults } = useTheme()
   const { colors } = useTheme().theme
   const { onRefresh } = useDatabase()
 
@@ -117,6 +118,70 @@ export default function SettingsScreen() {
         </View>
       </View>
 
+      <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Peso por defecto</Text>
+        <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>
+          Valor inicial del selector cuando no hay registro previo
+        </Text>
+        <View style={localStyles.weightRow}>
+          {DEFAULT_WEIGHT_OPTIONS.map((w) => (
+            <HapticButton
+              key={w}
+              style={[
+                localStyles.weightOption,
+                {
+                  backgroundColor: defaultWeight === w ? colors.primary : "transparent",
+                  borderColor: defaultWeight === w ? colors.primary : colors.border,
+                },
+              ]}
+              onPress={() => setDefaultWeight(w)}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[
+                  localStyles.weightText,
+                  { color: defaultWeight === w ? "#fff" : colors.text },
+                ]}
+              >
+                {w} kg
+              </Text>
+            </HapticButton>
+          ))}
+        </View>
+      </View>
+
+      <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Step de decimales</Text>
+        <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>
+          Precisión del selector de peso
+        </Text>
+        <View style={localStyles.restRow}>
+          {DECIMAL_STEP_OPTIONS.map((step) => (
+            <HapticButton
+              key={step}
+              style={[
+                localStyles.restOption,
+                {
+                  backgroundColor: decimalStep === step ? colors.primary : "transparent",
+                  borderColor: decimalStep === step ? colors.primary : colors.border,
+                },
+              ]}
+              onPress={() => setDecimalStep(step)}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[
+                  localStyles.restText,
+                  { color: decimalStep === step ? "#fff" : colors.text },
+                ]}
+              >
+                {step.toFixed(2)}
+              </Text>
+            </HapticButton>
+          ))}
+        </View>
+      </View>
+
       {__DEV__ && (
         <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Desarrollo</Text>
@@ -137,6 +202,14 @@ export default function SettingsScreen() {
               disabled={loadingDev}
             >
               <Text style={localStyles.devBtnText}>Poblar con ejemplo</Text>
+            </HapticButton>
+          </View>
+          <View style={[localStyles.devRow, { marginTop: spacing.sm }]}>
+            <HapticButton
+              style={[localStyles.devBtn, { backgroundColor: colors.textTertiary }]}
+              onPress={resetToDefaults}
+            >
+              <Text style={localStyles.devBtnText}>Resetear ajustes</Text>
             </HapticButton>
           </View>
         </View>
@@ -213,6 +286,22 @@ const localStyles = StyleSheet.create({
     alignItems: "center",
   },
   restText: {
+    fontSize: typography.body.fontSize,
+    fontWeight: "600",
+  },
+  weightRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+  },
+  weightOption: {
+    paddingVertical: 10,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radii.sm,
+    borderWidth: 1.5,
+    alignItems: "center",
+  },
+  weightText: {
     fontSize: typography.body.fontSize,
     fontWeight: "600",
   },
