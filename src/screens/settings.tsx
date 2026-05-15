@@ -1,9 +1,9 @@
 import { View, Text, ScrollView, StyleSheet } from "react-native"
 
-import { useTheme } from "../context/ThemeContext"
-import { themes, type ThemeName } from "../theme"
-import { spacing, typography, radii } from "../tokens"
-import HapticButton from "../components/HapticButton"
+import { useTheme } from "@/hooks/use-theme"
+import { themes, type ThemeName } from "@/constants/theme"
+import { spacing, typography, radii } from "@/constants/tokens"
+import HapticButton from "@/components/haptic-button"
 
 const REST_OPTIONS = [60, 90, 120]
 

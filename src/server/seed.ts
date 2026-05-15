@@ -1,8 +1,8 @@
 import { Asset } from "expo-asset"
 import { Platform } from "react-native"
 
-import { importWorkout, clearAllData } from "./database"
-import { parseCSV } from "./csv-parser"
+import { importWorkout, clearAllData } from "@/server/database"
+import { parseCSV } from "@/server/csv-parser"
 
 export async function seedDatabase(): Promise<void> {
   if (!__DEV__) return

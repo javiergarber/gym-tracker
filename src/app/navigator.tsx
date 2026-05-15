@@ -1,11 +1,11 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 
-import { useTheme } from "../context/ThemeContext"
-import type { RootStackParamList } from "./types"
-import HomeScreen from "../screens/Home"
-import WorkoutDetailScreen from "../screens/WorkoutDetailScreen"
-import DayDetailScreen from "../screens/DayDetailScreen"
-import SettingsScreen from "../screens/SettingsScreen"
+import { useTheme } from "@/hooks/use-theme"
+import type { RootStackParamList } from "@/app/navigator.types"
+import HomeScreen from "@/screens/home/index"
+import WorkoutDetailScreen from "@/screens/workout-detail"
+import DayDetailScreen from "@/screens/day-detail"
+import SettingsScreen from "@/screens/settings"
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
 

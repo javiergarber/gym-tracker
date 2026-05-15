@@ -3,11 +3,11 @@ import { ScrollView, StyleSheet, Text, View, Platform } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import type { NativeStackScreenProps } from "@react-navigation/native-stack"
 
-import { useTheme } from "../context/ThemeContext"
-import { spacing, typography, radii } from "../tokens"
-import { getWorkoutById, getWorkoutDays } from "../services/database"
-import HapticButton from "../components/HapticButton"
-import type { RootStackParamList } from "../navigation/types"
+import { useTheme } from "@/hooks/use-theme"
+import { spacing, typography, radii } from "@/constants/tokens"
+import { getWorkoutById, getWorkoutDays } from "@/server/database"
+import HapticButton from "@/components/haptic-button"
+import type { RootStackParamList } from "@/app/navigator.types"
 
 type Props = NativeStackScreenProps<RootStackParamList, "WorkoutDetail">
 

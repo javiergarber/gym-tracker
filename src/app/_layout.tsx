@@ -3,10 +3,10 @@ import { NavigationContainer } from "@react-navigation/native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { Platform, View } from "react-native"
 
-import { ThemeProvider, useTheme } from "./src/context/ThemeContext"
-import { DatabaseProvider } from "./src/context/DatabaseContext"
-import { DevProvider } from "./src/dev/DevProvider"
-import Navigator from "./src/navigation/Navigator"
+import { ThemeProvider, useTheme } from "@/hooks/use-theme"
+import { DatabaseProvider } from "@/hooks/use-database"
+import { DevProvider } from "@/hooks/dev-provider"
+import Navigator from "@/app/navigator"
 
 const Root = Platform.OS === "web" ? View : GestureHandlerRootView
 

@@ -9,7 +9,7 @@
 - react-native-web for web target
 
 ## Entrypoints
-- `index.ts` → `App.tsx` (root component)
+- `src/app/index.ts` → `src/app/_layout.tsx` (root component)
 
 ## Commands
 | Command | Description |
@@ -24,9 +24,9 @@
 ## Project conventions
 - `docs/plans/` — architecture plans and design docs
 - `docs/use-cases/` — feature tasks and requirements for agent reference
+- `docs/agent/file-structure.md` — **directory layout + rules for where to place files** — consult this before creating or moving any file
 - `.vscode/launch.json` — VS Code run configs (Start Expo, Web, Android)
-- `src/` — source code: `screens/`, `components/`, `services/`, `navigation/`, `context/`
-- `src/theme.ts` — design tokens (colors, spacing, typography, radii)
+- `src/` — source code (see `docs/agent/file-structure.md` for layout)
 
 ## Notes
 - No lint, test, or CI setup yet

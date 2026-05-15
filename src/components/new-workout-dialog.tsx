@@ -7,9 +7,9 @@ import {
   StyleSheet,
 } from "react-native"
 
-import { useTheme } from "../context/ThemeContext"
-import { typography, radii, spacing } from "../tokens"
-import HapticButton from "./HapticButton"
+import { useTheme } from "@/hooks/use-theme"
+import { typography, radii, spacing } from "@/constants/tokens"
+import HapticButton from "@/components/haptic-button"
 
 interface Props {
   visible: boolean

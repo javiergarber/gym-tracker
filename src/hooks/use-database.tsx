@@ -1,9 +1,9 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
 import { ActivityIndicator, Alert, View, StyleSheet } from "react-native"
 
-import { initDatabase, getWorkouts, renameWorkout, deleteWorkout } from "../services/database"
-import { useTheme } from "./ThemeContext"
-import type { Workout } from "../types"
+import { initDatabase, getWorkouts, renameWorkout, deleteWorkout } from "@/server/database"
+import { useTheme } from "@/hooks/use-theme"
+import type { Workout } from "@/constants/types"
 
 interface DatabaseContextValue {
   workouts: Workout[]

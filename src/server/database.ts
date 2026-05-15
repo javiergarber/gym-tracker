@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite"
-import type { ParsedCSV } from "./csv-parser"
-import type { Workout } from "../types"
+import type { ParsedCSV } from "@/server/csv-parser"
+import type { Workout } from "@/constants/types"
 
 let db: SQLite.SQLiteDatabase | null = null
 let dbListeners: Set<() => void> = new Set()
@@ -59,7 +59,6 @@ export async function initDatabase(): Promise<void> {
   `)
 
   notifyDbReady()
-  return db
 }
 
 function parseSeriesCount(seriesStr: string): number {

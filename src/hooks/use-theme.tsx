@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 
-import { themes, type ThemeName, type Theme, type ThemeColors } from "../theme"
+import { themes, type ThemeName, type Theme, type ThemeColors } from "@/constants/theme"
 
 const STORAGE_KEY = "theme"
 const REST_TIMER_KEY = "restTimer"

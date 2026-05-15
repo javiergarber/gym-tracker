@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet } from "react-native"
 import type { NativeStackScreenProps } from "@react-navigation/native-stack"
 
-import { useTheme } from "../context/ThemeContext"
-import { typography } from "../tokens"
-import type { RootStackParamList } from "../navigation/types"
+import { useTheme } from "@/hooks/use-theme"
+import { typography } from "@/constants/tokens"
+import type { RootStackParamList } from "@/app/navigator.types"
 
 type Props = NativeStackScreenProps<RootStackParamList, "DayDetail">
 

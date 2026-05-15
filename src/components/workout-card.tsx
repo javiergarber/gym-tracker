@@ -4,10 +4,10 @@ import { LinearGradient } from "expo-linear-gradient"
 import * as Haptics from "expo-haptics"
 import Swipeable from "react-native-gesture-handler/Swipeable"
 
-import { useTheme } from "../context/ThemeContext"
-import { typography } from "../tokens"
-import HapticButton from "./HapticButton"
-import type { Workout } from "../types"
+import { useTheme } from "@/hooks/use-theme"
+import { typography } from "@/constants/tokens"
+import HapticButton from "@/components/haptic-button"
+import type { Workout } from "@/constants/types"
 
 interface Props {
   workout: Workout

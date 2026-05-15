@@ -3,9 +3,9 @@ import { useSyncExternalStore } from "react"
 
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin"
 
-import { getDb, subscribeToDb } from "../services/database"
-import { seedDatabase } from "../services/seed"
-import { useDatabase } from "../context/DatabaseContext"
+import { getDb, subscribeToDb } from "@/server/database"
+import { seedDatabase } from "@/server/seed"
+import { useDatabase } from "@/hooks/use-database"
 
 function DevContent({ children }: { children: ReactNode }) {
   const db = useSyncExternalStore(subscribeToDb, getDb)
