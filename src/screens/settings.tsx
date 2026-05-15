@@ -1,9 +1,13 @@
-import { View, Text, ScrollView, StyleSheet } from "react-native"
+import { useState } from "react"
+import { View, Text, ScrollView, StyleSheet, Alert } from "react-native"
 
 import { useTheme } from "@/hooks/use-theme"
 import { themes, type ThemeName } from "@/constants/theme"
 import { spacing, typography, radii } from "@/constants/tokens"
 import HapticButton from "@/components/haptic-button"
+import { useDatabase } from "@/hooks/use-database"
+import { clearAllData } from "@/server/database"
+import { seedDatabase } from "@/server/database/seed"
 
 const REST_OPTIONS = [60, 90, 120]
 
@@ -37,8 +41,36 @@ function ThemePreviewCard({ name, selected, onSelect }: { name: ThemeName; selec
 }
 
 export default function SettingsScreen() {
+  const [loadingDev, setLoadingDev] = useState(false)
   const { themeName, setThemeName, restTimer, setRestTimer } = useTheme()
   const { colors } = useTheme().theme
+  const { onRefresh } = useDatabase()
+
+  const handleClear = async () => {
+    setLoadingDev(true)
+    try {
+      await clearAllData()
+      await onRefresh()
+      Alert.alert("Hecho", "Base de datos limpiada")
+    } catch {
+      Alert.alert("Error", "No se pudo limpiar la base de datos")
+    } finally {
+      setLoadingDev(false)
+    }
+  }
+
+  const handleSeed = async () => {
+    setLoadingDev(true)
+    try {
+      await seedDatabase()
+      await onRefresh()
+      Alert.alert("Hecho", "Datos de ejemplo insertados")
+    } catch {
+      Alert.alert("Error", "No se pudieron insertar los datos de ejemplo")
+    } finally {
+      setLoadingDev(false)
+    }
+  }
 
   return (
     <ScrollView style={[localStyles.screen, { backgroundColor: colors.background }]} contentContainerStyle={localStyles.content}>
@@ -84,6 +116,31 @@ export default function SettingsScreen() {
           ))}
         </View>
       </View>
+
+      {__DEV__ && (
+        <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Desarrollo</Text>
+          <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>
+            Herramientas de depuración
+          </Text>
+          <View style={localStyles.devRow}>
+            <HapticButton
+              style={[localStyles.devBtn, { backgroundColor: colors.danger }]}
+              onPress={handleClear}
+              disabled={loadingDev}
+            >
+              <Text style={localStyles.devBtnText}>Limpiar BD</Text>
+            </HapticButton>
+            <HapticButton
+              style={[localStyles.devBtn, { backgroundColor: colors.primary }]}
+              onPress={handleSeed}
+              disabled={loadingDev}
+            >
+              <Text style={localStyles.devBtnText}>Poblar con ejemplo</Text>
+            </HapticButton>
+          </View>
+        </View>
+      )}
     </ScrollView>
   )
 }
@@ -158,5 +215,20 @@ const localStyles = StyleSheet.create({
   restText: {
     fontSize: typography.body.fontSize,
     fontWeight: "600",
+  },
+  devRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+  },
+  devBtn: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: radii.sm,
+    alignItems: "center",
+  },
+  devBtnText: {
+    fontSize: typography.body.fontSize,
+    fontWeight: "600",
+    color: "#fff",
   },
 })

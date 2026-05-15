@@ -1,5 +1,5 @@
 import * as SQLite from "expo-sqlite"
-import type { ParsedCSV } from "@/server/csv-parser"
+import type { ParsedCSV } from "./csv-parser"
 import type { Workout } from "@/constants/types"
 
 let db: SQLite.SQLiteDatabase | null = null

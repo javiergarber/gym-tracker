@@ -29,9 +29,10 @@ gym-tracker/
 │   │   ├── settings.tsx
 │   │   └── workout-detail.tsx
 │   └── server/               # Lógica de negocio / backend
-│       ├── csv-parser.ts
-│       ├── database.ts
-│       └── seed.ts
+│       └── database/          #   Capa de datos
+│           ├── index.ts       #     DB client + queries
+│           ├── csv-parser.ts  #     Parseador CSV
+│           └── seed.ts        #     Datos de ejemplo (dev)
 ├── app.json
 └── package.json
 ```

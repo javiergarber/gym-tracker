@@ -1,8 +1,8 @@
 import { Asset } from "expo-asset"
 import { Platform } from "react-native"
 
-import { importWorkout, clearAllData } from "@/server/database"
-import { parseCSV } from "@/server/csv-parser"
+import { importWorkout, clearAllData } from "."
+import { parseCSV } from "./csv-parser"
 
 export async function seedDatabase(): Promise<void> {
   if (!__DEV__) return
@@ -10,7 +10,7 @@ export async function seedDatabase(): Promise<void> {
   try {
     await clearAllData()
 
-    const asset = Asset.fromModule(require("../../test/workout.csv"))
+    const asset = Asset.fromModule(require("../../../test/workout.csv"))
     await asset.downloadAsync()
     const uri = asset.localUri!
 
