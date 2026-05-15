@@ -10,7 +10,7 @@ export async function seedDatabase(): Promise<void> {
   try {
     await clearAllData()
 
-    const asset = Asset.fromModule(require("../../../test/workout.csv"))
+    const asset = Asset.fromModule(require("../../../assets/workout.csv"))
     await asset.downloadAsync()
     const uri = asset.localUri!
 
