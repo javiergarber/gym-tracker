@@ -1,14 +1,10 @@
 import { useEffect, useRef, useState } from "react"
 import { View, Text, StyleSheet, Modal, Pressable, Vibration } from "react-native"
-import { Audio } from "expo-av"
 
 import { useTheme } from "@/hooks/use-theme"
 import { spacing, typography, radii } from "@/constants/tokens"
 import { VALID_REST_TIMERS } from "@/constants/defaults"
 import HapticButton from "@/components/haptic-button"
-
-const beepSource = require("@/assets/audio/beep.wav")
-const beepEndSource = require("@/assets/audio/beep-end.wav")
 
 interface Props {
   elapsed: number
@@ -37,30 +33,8 @@ export default function TimerDisplay({ elapsed, paused, restDuration, restTrigge
   const [timeLeft, setTimeLeft] = useState(restDuration)
   const [isRunning, setIsRunning] = useState(false)
   const [showRestPicker, setShowRestPicker] = useState(false)
-  const beepSoundRef = useRef<Audio.Sound | null>(null)
-  const beepEndSoundRef = useRef<Audio.Sound | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const timeLeftRef = useRef(restDuration)
-
-  useEffect(() => {
-    async function init() {
-      try {
-        const { sound: s1 } = await Audio.Sound.createAsync(beepSource, { volume: 1.0 })
-        beepSoundRef.current = s1
-        const { sound: s2 } = await Audio.Sound.createAsync(beepEndSource, { volume: 1.0 })
-        beepEndSoundRef.current = s2
-        await s1.setStatusAsync({ shouldPlay: true, positionMillis: 0 })
-        await s1.setStatusAsync({ shouldPlay: false, positionMillis: 0 })
-        await s2.setStatusAsync({ shouldPlay: true, positionMillis: 0 })
-        await s2.setStatusAsync({ shouldPlay: false, positionMillis: 0 })
-      } catch {}
-    }
-    init()
-    return () => {
-      beepSoundRef.current?.unloadAsync()
-      beepEndSoundRef.current?.unloadAsync()
-    }
-  }, [])
 
   useEffect(() => {
     if (restTrigger <= 0) return
@@ -83,7 +57,6 @@ export default function TimerDisplay({ elapsed, paused, restDuration, restTrigge
         setIsRunning(false)
         setTimeout(() => {
           Vibration.vibrate(300)
-          beepEndSoundRef.current?.setStatusAsync({ positionMillis: 0, shouldPlay: true })
           timeLeftRef.current = restDuration
           setTimeLeft(restDuration)
         }, 200)
@@ -96,7 +69,6 @@ export default function TimerDisplay({ elapsed, paused, restDuration, restTrigge
 
       if (next <= 3) {
         Vibration.vibrate(100)
-        beepSoundRef.current?.setStatusAsync({ positionMillis: 0, shouldPlay: true })
       }
     }, 1000)
 

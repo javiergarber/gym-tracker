@@ -22,7 +22,11 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.javiergarber.gymtracker"
+      "package": "com.javiergarber.gymtracker",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,7 +36,12 @@
       "expo-asset",
       "expo-system-ui",
       "expo-font",
-      "expo-audio"
-    ]
+      "./plugins/with-res-raw-audio"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "62cfa93e-2f8c-4fe5-b227-104bb2ff3d36"
+      }
+    }
   }
 }
