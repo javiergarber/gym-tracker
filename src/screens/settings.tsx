@@ -1,7 +1,8 @@
 import { useState } from "react"
-import { View, Text, ScrollView, StyleSheet, Alert } from "react-native"
+import { View, Text, ScrollView, StyleSheet, Alert, Switch } from "react-native"
 
 import { useTheme } from "@/hooks/use-theme"
+import { useAudio } from "@/hooks/use-audio"
 import { themes, type ThemeName } from "@/constants/theme"
 import { spacing, typography, radii } from "@/constants/tokens"
 import { DEFAULTS, VALID_REST_TIMERS, DEFAULT_WEIGHT_OPTIONS, DECIMAL_STEP_OPTIONS } from "@/constants/defaults"
@@ -43,9 +44,10 @@ function ThemePreviewCard({ name, selected, onSelect }: { name: ThemeName; selec
 
 export default function SettingsScreen() {
   const [loadingDev, setLoadingDev] = useState(false)
-  const { themeName, setThemeName, restTimer, setRestTimer, defaultWeight, setDefaultWeight, decimalStep, setDecimalStep, resetToDefaults } = useTheme()
+  const { themeName, setThemeName, restTimer, setRestTimer, defaultWeight, setDefaultWeight, decimalStep, setDecimalStep, extraMotivationSoundsEnabled, setExtraMotivationSoundsEnabled, resetToDefaults } = useTheme()
   const { colors } = useTheme().theme
   const { onRefresh } = useDatabase()
+  const { playYey } = useAudio()
 
   const handleClear = async () => {
     setLoadingDev(true)
@@ -147,6 +149,22 @@ export default function SettingsScreen() {
               </Text>
             </HapticButton>
           ))}
+        </View>
+      </View>
+
+      <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Sonido</Text>
+        <View style={localStyles.inlineRow}>
+          <Text style={[localStyles.inlineLabel, { color: colors.text }]}>Sonidos de motivación extra</Text>
+          <Switch
+            value={extraMotivationSoundsEnabled}
+            onValueChange={(val) => {
+              setExtraMotivationSoundsEnabled(val)
+              if (val) playYey()
+            }}
+            trackColor={{ false: colors.border, true: colors.primary }}
+            thumbColor="#fff"
+          />
         </View>
       </View>
 
@@ -277,6 +295,16 @@ const localStyles = StyleSheet.create({
   restRow: {
     flexDirection: "row",
     gap: spacing.md,
+  },
+  inlineRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  inlineLabel: {
+    fontSize: typography.body.fontSize,
+    fontWeight: "500",
+    flexShrink: 1,
   },
   restOption: {
     flex: 1,

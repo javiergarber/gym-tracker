@@ -5,6 +5,7 @@ export const DEFAULTS = {
   restTimer: 90,
   defaultWeight: 20,
   decimalStep: 0.25,
+  extraMotivationSoundsEnabled: false,
 } as const
 
 export const VALID_THEMES: ThemeName[] = ["negroNeon", "azul"]

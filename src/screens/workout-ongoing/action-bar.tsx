@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from "react-native"
 import { useTheme } from "@/hooks/use-theme"
+import { useAudio } from "@/hooks/use-audio"
 import { spacing, typography, radii } from "@/constants/tokens"
 import HapticButton from "@/components/haptic-button"
 
@@ -10,7 +11,8 @@ interface Props {
 }
 
 export default function ActionBar({ onLogSet, onFinishExercise, disabled }: Props) {
-  const { colors } = useTheme()
+  const { colors, extraMotivationSoundsEnabled } = useTheme()
+  const { playNice, playJustDoIt, playAnotherOne, playEz } = useAudio()
 
   const perfColor = "#00897B"
 
@@ -19,7 +21,10 @@ export default function ActionBar({ onLogSet, onFinishExercise, disabled }: Prop
       <View style={styles.row}>
         <HapticButton
           style={[styles.rirButton, { backgroundColor: perfColor }]}
-          onPress={() => onLogSet("perfecta")}
+          onPress={() => {
+            if (extraMotivationSoundsEnabled) playNice()
+            onLogSet("perfecta")
+          }}
           disabled={disabled}
         >
           <Text style={styles.rirIcon}>0</Text>
@@ -28,7 +33,10 @@ export default function ActionBar({ onLogSet, onFinishExercise, disabled }: Prop
 
         <HapticButton
           style={[styles.rirButton, { backgroundColor: "#D32F2F" }]}
-          onPress={() => onLogSet("fallo")}
+          onPress={() => {
+            if (extraMotivationSoundsEnabled) playJustDoIt()
+            onLogSet("fallo")
+          }}
           disabled={disabled}
         >
           <Text style={styles.rirIcon}>✕</Text>
@@ -38,7 +46,10 @@ export default function ActionBar({ onLogSet, onFinishExercise, disabled }: Prop
 
         <HapticButton
           style={[styles.rirButton, { backgroundColor: colors.primary }]}
-          onPress={() => onLogSet("rir1-2")}
+          onPress={() => {
+            if (extraMotivationSoundsEnabled) playAnotherOne()
+            onLogSet("rir1-2")
+          }}
           disabled={disabled}
         >
           <Text style={styles.rirIcon}>①②</Text>
@@ -48,7 +59,10 @@ export default function ActionBar({ onLogSet, onFinishExercise, disabled }: Prop
 
         <HapticButton
           style={[styles.rirButton, { backgroundColor: "#9C27B0" }]}
-          onPress={() => onLogSet("rir3+")}
+          onPress={() => {
+            if (extraMotivationSoundsEnabled) playEz()
+            onLogSet("rir3+")
+          }}
           disabled={disabled}
         >
           <Text style={styles.rirIcon}>③+</Text>
