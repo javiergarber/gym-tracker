@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { View, Text, StyleSheet, Modal, Pressable, Vibration } from "react-native"
+import * as Notifications from "expo-notifications"
 
 import { useTheme } from "@/hooks/use-theme"
 import { useAudio } from "@/hooks/use-audio"
@@ -37,6 +38,8 @@ export default function TimerDisplay({ elapsed, paused, restDuration, restTrigge
   const { playCountdown } = useAudio()
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const timeLeftRef = useRef(restDuration)
+  const restStartTimeRef = useRef<number | null>(null)
+  const lastSecondRef = useRef(-1)
 
   useEffect(() => {
     if (restTrigger <= 0) return
@@ -49,42 +52,77 @@ export default function TimerDisplay({ elapsed, paused, restDuration, restTrigge
   useEffect(() => {
     if (!isRunning) return
 
-    intervalRef.current = setInterval(() => {
-      const next = timeLeftRef.current - 1
+    restStartTimeRef.current = Date.now()
+    lastSecondRef.current = -1
 
-      if (next <= 0) {
+    intervalRef.current = setInterval(() => {
+      const elapsedMs = Date.now() - restStartTimeRef.current!
+      const currentSecond = Math.floor(elapsedMs / 1000)
+      const remaining = Math.max(0, restDuration - currentSecond)
+
+      timeLeftRef.current = remaining
+      setTimeLeft(remaining)
+
+      if (remaining <= 0) {
         timeLeftRef.current = 0
         setTimeLeft(0)
         clearTimer()
         setIsRunning(false)
+        Vibration.vibrate(300)
         setTimeout(() => {
-          Vibration.vibrate(300)
           timeLeftRef.current = restDuration
           setTimeLeft(restDuration)
-        }, 200)
+        }, 1000)
         onRestEnd()
         return
       }
 
-      timeLeftRef.current = next
-      setTimeLeft(next)
+      if (currentSecond !== lastSecondRef.current) {
+        lastSecondRef.current = currentSecond
 
-      if (next === 3) {
-        playCountdown()
-      }
+        if (remaining === 3) {
+          playCountdown()
+        }
 
-      if (next <= 3) {
-        Vibration.vibrate(100)
+        if (remaining <= 3) {
+          Vibration.vibrate(100)
+        }
       }
-    }, 1000)
+    }, 200)
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = null
-      }
+      clearTimer()
     }
-  }, [isRunning, onRestEnd])
+  }, [isRunning, restDuration, onRestEnd])
+
+  useEffect(() => {
+    if (!isRunning) return
+
+    let cancelled = false
+
+    ;(async () => {
+      await Notifications.cancelAllScheduledNotificationsAsync()
+      if (cancelled) return
+
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Descanso completado",
+          body: "¡Es hora de continuar!",
+          sound: true,
+          vibrate: [0, 250, 250, 250],
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: restDuration,
+        },
+      })
+    })()
+
+    return () => {
+      cancelled = true
+      Notifications.cancelAllScheduledNotificationsAsync()
+    }
+  }, [isRunning, restDuration])
 
   function clearTimer() {
     if (intervalRef.current) {

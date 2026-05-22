@@ -41,6 +41,8 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
   const [completedExercises, setCompletedExercises] = useState<Set<number>>(new Set())
   const [previousWeights, setPreviousWeights] = useState<Record<number, { weight: number; rirLabel: string }[]>>({})
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const startTimeRef = useRef<number | null>(null)
+  const elapsedRef = useRef(0)
 
   useEffect(() => {
     ;(async () => {
@@ -64,9 +66,14 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
   useEffect(() => {
     if (!ready || paused || showCompletion) return
 
+    startTimeRef.current = Date.now() - elapsedRef.current * 1000
+
     intervalRef.current = setInterval(() => {
-      setElapsed((prev) => prev + 1)
-    }, 1000)
+      const now = Date.now()
+      const elapsedSeconds = Math.floor((now - startTimeRef.current!) / 1000)
+      elapsedRef.current = elapsedSeconds
+      setElapsed(elapsedSeconds)
+    }, 100)
 
     return () => {
       if (intervalRef.current) {

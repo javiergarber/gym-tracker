@@ -35,7 +35,8 @@
       "expo-sqlite",
       "expo-asset",
       "expo-system-ui",
-      "expo-font"
+      "expo-font",
+
     ],
     "extra": {
       "eas": {

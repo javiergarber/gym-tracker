@@ -1,5 +1,18 @@
-import { createContext, useContext, useRef, useEffect, type ReactNode } from "react"
-import { Audio } from "expo-av"
+import { createContext, useContext, useEffect, type ReactNode } from "react"
+import { Platform } from "react-native"
+import { createAudioPlayer, setAudioModeAsync } from "expo-audio"
+import * as Notifications from "expo-notifications"
+
+const player = createAudioPlayer(require("@/assets/audio/beep-countdown.wav"))
+
+function playCountdown() {
+  try {
+    player.seekTo(0)
+    player.play()
+  } catch {
+    // Ignorar error en recarga
+  }
+}
 
 interface AudioContextValue {
   playCountdown: () => void
@@ -8,44 +21,32 @@ interface AudioContextValue {
 const AudioContext = createContext<AudioContextValue | null>(null)
 
 export function AudioProvider({ children }: { children: ReactNode }) {
-  const soundRef = useRef<Audio.Sound | null>(null)
-
   useEffect(() => {
-    Audio.setAudioModeAsync({
-      playsInSilentModeIOS: true,
-      shouldDuckAndroid: true,
+    setAudioModeAsync({
+      playsInSilentMode: true,
     })
 
-    let cancelled = false
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowBanner: false,
+        shouldShowList: false,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    })
 
-    ;(async () => {
-      try {
-        const { sound } = await Audio.Sound.createAsync(
-          require("@/assets/audio/beep-countdown.wav"),
-          { shouldPlay: false },
-        )
-        if (cancelled) {
-          sound.unloadAsync()
-          return
-        }
-        soundRef.current = sound
+    Notifications.requestPermissionsAsync()
 
-        await sound.setVolumeAsync(0)
-        await sound.playAsync()
-        await sound.stopAsync()
-        await sound.setVolumeAsync(1)
-      } catch {}
-    })()
-
-    return () => {
-      cancelled = true
-      soundRef.current?.unloadAsync()
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("rest-timer", {
+        name: "Descanso",
+        importance: Notifications.AndroidImportance.HIGH,
+        sound: "default",
+        vibrationPattern: [0, 250, 250, 250],
+        enableVibrate: true,
+      })
     }
   }, [])
-
-  function playCountdown() {
-    soundRef.current?.replayAsync()
-  }
 
   return (
     <AudioContext.Provider value={{ playCountdown }}>
