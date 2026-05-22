@@ -7,6 +7,7 @@ import * as SplashScreen from "expo-splash-screen"
 import { useFonts, Roboto_700Bold } from "@expo-google-fonts/roboto"
 
 import { ThemeProvider, useTheme } from "@/hooks/use-theme"
+import { AudioProvider } from "@/hooks/use-audio"
 import { DatabaseProvider } from "@/hooks/use-database"
 import { DevProvider } from "@/hooks/dev-provider"
 import Navigator from "@/app/navigator"
@@ -67,6 +68,7 @@ export default function App() {
     <Root style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <ThemeProvider>
         <StatusBarWrapper />
+        <AudioProvider>
         <DatabaseProvider>
           <DevProvider>
             <ThemedNavigationContainer>
@@ -74,6 +76,7 @@ export default function App() {
             </ThemedNavigationContainer>
           </DevProvider>
         </DatabaseProvider>
+        </AudioProvider>
       </ThemeProvider>
     </Root>
   )

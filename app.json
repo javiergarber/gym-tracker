@@ -35,8 +35,7 @@
       "expo-sqlite",
       "expo-asset",
       "expo-system-ui",
-      "expo-font",
-      "./plugins/with-res-raw-audio"
+      "expo-font"
     ],
     "extra": {
       "eas": {

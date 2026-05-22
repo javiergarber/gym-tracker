@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { View, Text, StyleSheet, Modal, Pressable, Vibration } from "react-native"
 
 import { useTheme } from "@/hooks/use-theme"
+import { useAudio } from "@/hooks/use-audio"
 import { spacing, typography, radii } from "@/constants/tokens"
 import { VALID_REST_TIMERS } from "@/constants/defaults"
 import HapticButton from "@/components/haptic-button"
@@ -33,6 +34,7 @@ export default function TimerDisplay({ elapsed, paused, restDuration, restTrigge
   const [timeLeft, setTimeLeft] = useState(restDuration)
   const [isRunning, setIsRunning] = useState(false)
   const [showRestPicker, setShowRestPicker] = useState(false)
+  const { playCountdown } = useAudio()
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const timeLeftRef = useRef(restDuration)
 
@@ -66,6 +68,10 @@ export default function TimerDisplay({ elapsed, paused, restDuration, restTrigge
 
       timeLeftRef.current = next
       setTimeLeft(next)
+
+      if (next === 3) {
+        playCountdown()
+      }
 
       if (next <= 3) {
         Vibration.vibrate(100)
