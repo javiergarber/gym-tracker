@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { View, Text, StyleSheet, Modal, Pressable, Vibration } from "react-native"
+import { View, Text, StyleSheet, Modal, Pressable, Vibration, AppState, Switch } from "react-native"
 import * as Notifications from "expo-notifications"
 
 import { useTheme } from "@/hooks/use-theme"
@@ -24,14 +24,15 @@ function formatTime(totalSeconds: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
 }
 
-function formatShort(totalSeconds: number): string {
+function formatRestTime(totalSeconds: number): string {
   const m = Math.floor(totalSeconds / 60)
   const s = totalSeconds % 60
-  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+  if (m === 0) return `${s}s`
+  return `${m}:${String(s).padStart(2, "0")}`
 }
 
 export default function TimerDisplay({ elapsed, paused, restDuration, restTrigger, onRestDurationChange, onRestEnd }: Props) {
-  const { colors } = useTheme()
+  const { colors, restEndSoundEnabled, setRestEndSoundEnabled } = useTheme()
   const [timeLeft, setTimeLeft] = useState(restDuration)
   const [isRunning, setIsRunning] = useState(false)
   const [showRestPicker, setShowRestPicker] = useState(false)
@@ -80,7 +81,7 @@ export default function TimerDisplay({ elapsed, paused, restDuration, restTrigge
       if (currentSecond !== lastSecondRef.current) {
         lastSecondRef.current = currentSecond
 
-        if (remaining === 3) {
+        if (restEndSoundEnabled && remaining === 3) {
           playCountdown()
         }
 
@@ -101,6 +102,8 @@ export default function TimerDisplay({ elapsed, paused, restDuration, restTrigge
     let cancelled = false
 
     ;(async () => {
+      if (AppState.currentState === "active") return
+
       await Notifications.cancelAllScheduledNotificationsAsync()
       if (cancelled) return
 
@@ -164,21 +167,16 @@ export default function TimerDisplay({ elapsed, paused, restDuration, restTrigge
         {formatTime(elapsed)}
       </Text>
 
-      <HapticButton
-        style={[styles.restToggleBtn, { backgroundColor: colors.primary }]}
-        onPress={toggleRest}
-      >
-        <Text style={styles.restToggleIcon}>{isRunning ? "■" : "▶"}</Text>
-        <Text style={styles.restToggleText}>
-          {isRunning ? "Acabar descanso" : "Iniciar descanso"}
-        </Text>
-      </HapticButton>
-
-      <View style={styles.restInfoRow}>
-        <Text style={[styles.restIcon, { color: "#00BCD4" }]}>⏱</Text>
-        <Text style={[styles.restTime, { color: "#00BCD4" }]}>
-          Descanso: {formatShort(timeLeft)}
-        </Text>
+      <View style={styles.restBtnRow}>
+        <HapticButton
+          style={[styles.restToggleBtn, { backgroundColor: colors.primary }]}
+          onPress={toggleRest}
+        >
+          <Text style={styles.restToggleIcon}>{isRunning ? "■" : "▶"}</Text>
+          <Text style={styles.restToggleText}>
+            {isRunning ? formatRestTime(timeLeft) : `Iniciar descanso ${formatRestTime(restDuration)}`}
+          </Text>
+        </HapticButton>
         <HapticButton style={styles.gearBtn} onPress={() => setShowRestPicker(true)}>
           <Text style={[styles.gearIcon, { color: colors.textMuted }]}>⚙</Text>
         </HapticButton>
@@ -210,6 +208,15 @@ export default function TimerDisplay({ elapsed, paused, restDuration, restTrigge
                 </Text>
               </HapticButton>
             ))}
+            <View style={styles.pickerSoundRow}>
+              <Text style={[styles.pickerSoundLabel, { color: colors.text }]}>Sonido de fin</Text>
+              <Switch
+                value={restEndSoundEnabled}
+                onValueChange={setRestEndSoundEnabled}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor="#fff"
+              />
+            </View>
           </View>
         </Pressable>
       </Modal>
@@ -234,14 +241,21 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
     letterSpacing: 2,
   },
-  restToggleBtn: {
+  restBtnRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  restToggleBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
     borderRadius: 20,
     paddingHorizontal: spacing.xxl,
-    paddingVertical: spacing.sm,
-    marginTop: spacing.sm,
+    paddingVertical: spacing.md,
+    minWidth: 240,
   },
   restToggleIcon: {
     fontSize: 14,
@@ -253,23 +267,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     letterSpacing: 0.5,
   },
-  restInfoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-    marginTop: spacing.sm,
-  },
-  restIcon: {
-    fontSize: 16,
-  },
-  restTime: {
-    fontSize: typography.caption.fontSize,
-    fontWeight: "600",
-    letterSpacing: 0.5,
-  },
   gearBtn: {
-    padding: spacing.xs,
-    marginLeft: spacing.xs,
+    padding: spacing.sm,
+    borderRadius: 20,
+    backgroundColor: "rgba(128,128,128,0.15)",
   },
   gearIcon: {
     fontSize: 18,
@@ -302,5 +303,18 @@ const styles = StyleSheet.create({
   pickerOptionText: {
     fontSize: typography.body.fontSize,
     fontWeight: "600",
+  },
+  pickerSoundRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(128,128,128,0.2)",
+  },
+  pickerSoundLabel: {
+    fontSize: typography.body.fontSize,
+    fontWeight: "500",
   },
 })

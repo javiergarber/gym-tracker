@@ -44,7 +44,7 @@ function ThemePreviewCard({ name, selected, onSelect }: { name: ThemeName; selec
 
 export default function SettingsScreen() {
   const [loadingDev, setLoadingDev] = useState(false)
-  const { themeName, setThemeName, restTimer, setRestTimer, defaultWeight, setDefaultWeight, decimalStep, setDecimalStep, extraMotivationSoundsEnabled, setExtraMotivationSoundsEnabled, resetToDefaults } = useTheme()
+  const { themeName, setThemeName, restTimer, setRestTimer, defaultWeight, setDefaultWeight, decimalStep, setDecimalStep, extraMotivationSoundsEnabled, setExtraMotivationSoundsEnabled, restEndSoundEnabled, setRestEndSoundEnabled, resetToDefaults } = useTheme()
   const { colors } = useTheme().theme
   const { onRefresh } = useDatabase()
   const { playYey } = useAudio()
@@ -117,6 +117,15 @@ export default function SettingsScreen() {
               </Text>
             </HapticButton>
           ))}
+        </View>
+        <View style={[localStyles.inlineRow, { marginTop: spacing.lg }]}>
+          <Text style={[localStyles.inlineLabel, { color: colors.text }]}>Sonido de fin de descanso</Text>
+          <Switch
+            value={restEndSoundEnabled}
+            onValueChange={setRestEndSoundEnabled}
+            trackColor={{ false: colors.border, true: colors.primary }}
+            thumbColor="#fff"
+          />
         </View>
       </View>
 

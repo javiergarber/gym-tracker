@@ -9,6 +9,7 @@ const REST_TIMER_KEY = "restTimer"
 const DEFAULT_WEIGHT_KEY = "defaultWeight"
 const DECIMAL_STEP_KEY = "decimalStep"
 const EXTRA_MOTIVATION_SOUNDS_KEY = "extraMotivationSounds"
+const REST_END_SOUND_KEY = "restEndSound"
 
 interface ThemeContextValue {
   themeName: ThemeName
@@ -23,6 +24,8 @@ interface ThemeContextValue {
   setDecimalStep: (step: number) => Promise<void>
   extraMotivationSoundsEnabled: boolean
   setExtraMotivationSoundsEnabled: (enabled: boolean) => Promise<void>
+  restEndSoundEnabled: boolean
+  setRestEndSoundEnabled: (enabled: boolean) => Promise<void>
   resetToDefaults: () => Promise<void>
 }
 
@@ -34,6 +37,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [defaultWeight, setDefaultWeightState] = useState<number>(DEFAULTS.defaultWeight)
   const [decimalStep, setDecimalStepState] = useState<number>(DEFAULTS.decimalStep)
   const [extraMotivationSoundsEnabled, setExtraMotivationSoundsEnabledState] = useState<boolean>(DEFAULTS.extraMotivationSoundsEnabled)
+  const [restEndSoundEnabled, setRestEndSoundEnabledState] = useState<boolean>(DEFAULTS.restEndSoundEnabled)
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
@@ -70,6 +74,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       if (saved !== null) {
         setExtraMotivationSoundsEnabledState(saved === "true")
       }
+    })
+    AsyncStorage.getItem(REST_END_SOUND_KEY).then((saved) => {
+      if (saved !== null) {
+        setRestEndSoundEnabledState(saved === "true")
+      }
     }).finally(() => setLoaded(true))
   }, [])
 
@@ -79,12 +88,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setDefaultWeightState(DEFAULTS.defaultWeight as number)
     setDecimalStepState(DEFAULTS.decimalStep as number)
     setExtraMotivationSoundsEnabledState(DEFAULTS.extraMotivationSoundsEnabled)
+    setRestEndSoundEnabledState(DEFAULTS.restEndSoundEnabled)
     await AsyncStorage.multiSet([
       [STORAGE_KEY, DEFAULTS.themeName],
       [REST_TIMER_KEY, String(DEFAULTS.restTimer)],
       [DEFAULT_WEIGHT_KEY, String(DEFAULTS.defaultWeight)],
       [DECIMAL_STEP_KEY, String(DEFAULTS.decimalStep)],
       [EXTRA_MOTIVATION_SOUNDS_KEY, String(DEFAULTS.extraMotivationSoundsEnabled)],
+      [REST_END_SOUND_KEY, String(DEFAULTS.restEndSoundEnabled)],
     ])
   }, [])
 
@@ -113,6 +124,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     await AsyncStorage.setItem(EXTRA_MOTIVATION_SOUNDS_KEY, String(enabled))
   }, [])
 
+  const setRestEndSoundEnabled = useCallback(async (enabled: boolean) => {
+    setRestEndSoundEnabledState(enabled)
+    await AsyncStorage.setItem(REST_END_SOUND_KEY, String(enabled))
+  }, [])
+
   if (!loaded) return null
 
   return (
@@ -130,6 +146,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setDecimalStep,
         extraMotivationSoundsEnabled,
         setExtraMotivationSoundsEnabled,
+        restEndSoundEnabled,
+        setRestEndSoundEnabled,
         resetToDefaults,
       }}
     >
