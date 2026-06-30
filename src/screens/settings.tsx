@@ -77,173 +77,175 @@ export default function SettingsScreen() {
   }
 
   return (
-    <ScrollView style={[localStyles.screen, { backgroundColor: colors.background }]} contentContainerStyle={localStyles.content}>
+    <View style={[localStyles.screen, { backgroundColor: colors.background }]}>
       <MiniWorkoutBar />
-      <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Tema</Text>
-        <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>
-          Elige el estilo visual de la aplicación
-        </Text>
-        <View style={localStyles.themeRow}>
-          <ThemePreviewCard name="negroNeon" selected={themeName === "negroNeon"} onSelect={() => setThemeName("negroNeon")} />
-          <ThemePreviewCard name="azul" selected={themeName === "azul"} onSelect={() => setThemeName("azul")} />
-        </View>
-      </View>
-
-      <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Tiempo de descanso</Text>
-        <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>
-          Tiempo predeterminado entre ejercicios
-        </Text>
-        <View style={localStyles.restRow}>
-          {REST_OPTIONS.map((sec) => (
-            <HapticButton
-              key={sec}
-              style={[
-                localStyles.restOption,
-                {
-                  backgroundColor: restTimer === sec ? colors.primary : "transparent",
-                  borderColor: restTimer === sec ? colors.primary : colors.border,
-                },
-              ]}
-              onPress={() => setRestTimer(sec)}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={[
-                  localStyles.restText,
-                  { color: restTimer === sec ? "#fff" : colors.text },
-                ]}
-              >
-                {sec / 60 > 1 ? `${sec / 60} min` : `${sec} s`}
-              </Text>
-            </HapticButton>
-          ))}
-        </View>
-        <View style={[localStyles.inlineRow, { marginTop: spacing.lg }]}>
-          <Text style={[localStyles.inlineLabel, { color: colors.text }]}>Sonido de fin de descanso</Text>
-          <Switch
-            value={restEndSoundEnabled}
-            onValueChange={setRestEndSoundEnabled}
-            trackColor={{ false: colors.border, true: colors.primary }}
-            thumbColor="#fff"
-          />
-        </View>
-      </View>
-
-      <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Peso por defecto</Text>
-        <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>
-          Valor inicial del selector cuando no hay registro previo
-        </Text>
-        <View style={localStyles.weightRow}>
-          {DEFAULT_WEIGHT_OPTIONS.map((w) => (
-            <HapticButton
-              key={w}
-              style={[
-                localStyles.weightOption,
-                {
-                  backgroundColor: defaultWeight === w ? colors.primary : "transparent",
-                  borderColor: defaultWeight === w ? colors.primary : colors.border,
-                },
-              ]}
-              onPress={() => setDefaultWeight(w)}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={[
-                  localStyles.weightText,
-                  { color: defaultWeight === w ? "#fff" : colors.text },
-                ]}
-              >
-                {w} kg
-              </Text>
-            </HapticButton>
-          ))}
-        </View>
-      </View>
-
-      <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Sonido</Text>
-        <View style={localStyles.inlineRow}>
-          <Text style={[localStyles.inlineLabel, { color: colors.text }]}>Sonidos de motivación extra</Text>
-          <Switch
-            value={extraMotivationSoundsEnabled}
-            onValueChange={(val) => {
-              setExtraMotivationSoundsEnabled(val)
-              if (val) playYey()
-            }}
-            trackColor={{ false: colors.border, true: colors.primary }}
-            thumbColor="#fff"
-          />
-        </View>
-      </View>
-
-      <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Step de decimales</Text>
-        <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>
-          Precisión del selector de peso
-        </Text>
-        <View style={localStyles.restRow}>
-          {DECIMAL_STEP_OPTIONS.map((step) => (
-            <HapticButton
-              key={step}
-              style={[
-                localStyles.restOption,
-                {
-                  backgroundColor: decimalStep === step ? colors.primary : "transparent",
-                  borderColor: decimalStep === step ? colors.primary : colors.border,
-                },
-              ]}
-              onPress={() => setDecimalStep(step)}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={[
-                  localStyles.restText,
-                  { color: decimalStep === step ? "#fff" : colors.text },
-                ]}
-              >
-                {step.toFixed(2)}
-              </Text>
-            </HapticButton>
-          ))}
-        </View>
-      </View>
-
-      {__DEV__ && (
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={localStyles.content}>
         <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Desarrollo</Text>
+          <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Tema</Text>
           <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>
-            Herramientas de depuración
+            Elige el estilo visual de la aplicación
           </Text>
-          <View style={localStyles.devRow}>
-            <HapticButton
-              style={[localStyles.devBtn, { backgroundColor: colors.danger }]}
-              onPress={handleClear}
-              disabled={loadingDev}
-            >
-              <Text style={localStyles.devBtnText}>Limpiar BD</Text>
-            </HapticButton>
-            <HapticButton
-              style={[localStyles.devBtn, { backgroundColor: colors.primary }]}
-              onPress={handleSeed}
-              disabled={loadingDev}
-            >
-              <Text style={localStyles.devBtnText}>Poblar con ejemplo</Text>
-            </HapticButton>
-          </View>
-          <View style={[localStyles.devRow, { marginTop: spacing.sm }]}>
-            <HapticButton
-              style={[localStyles.devBtn, { backgroundColor: colors.textTertiary }]}
-              onPress={resetToDefaults}
-            >
-              <Text style={localStyles.devBtnText}>Resetear ajustes</Text>
-            </HapticButton>
+          <View style={localStyles.themeRow}>
+            <ThemePreviewCard name="negroNeon" selected={themeName === "negroNeon"} onSelect={() => setThemeName("negroNeon")} />
+            <ThemePreviewCard name="azul" selected={themeName === "azul"} onSelect={() => setThemeName("azul")} />
           </View>
         </View>
-      )}
-    </ScrollView>
+
+        <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Tiempo de descanso</Text>
+          <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>
+            Tiempo predeterminado entre ejercicios
+          </Text>
+          <View style={localStyles.restRow}>
+            {REST_OPTIONS.map((sec) => (
+              <HapticButton
+                key={sec}
+                style={[
+                  localStyles.restOption,
+                  {
+                    backgroundColor: restTimer === sec ? colors.primary : "transparent",
+                    borderColor: restTimer === sec ? colors.primary : colors.border,
+                  },
+                ]}
+                onPress={() => setRestTimer(sec)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    localStyles.restText,
+                    { color: restTimer === sec ? "#fff" : colors.text },
+                  ]}
+                >
+                  {sec / 60 > 1 ? `${sec / 60} min` : `${sec} s`}
+                </Text>
+              </HapticButton>
+            ))}
+          </View>
+          <View style={[localStyles.inlineRow, { marginTop: spacing.lg }]}>
+            <Text style={[localStyles.inlineLabel, { color: colors.text }]}>Sonido de fin de descanso</Text>
+            <Switch
+              value={restEndSoundEnabled}
+              onValueChange={setRestEndSoundEnabled}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor="#fff"
+            />
+          </View>
+        </View>
+
+        <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Peso por defecto</Text>
+          <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>
+            Valor inicial del selector cuando no hay registro previo
+          </Text>
+          <View style={localStyles.weightRow}>
+            {DEFAULT_WEIGHT_OPTIONS.map((w) => (
+              <HapticButton
+                key={w}
+                style={[
+                  localStyles.weightOption,
+                  {
+                    backgroundColor: defaultWeight === w ? colors.primary : "transparent",
+                    borderColor: defaultWeight === w ? colors.primary : colors.border,
+                  },
+                ]}
+                onPress={() => setDefaultWeight(w)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    localStyles.weightText,
+                    { color: defaultWeight === w ? "#fff" : colors.text },
+                  ]}
+                >
+                  {w} kg
+                </Text>
+              </HapticButton>
+            ))}
+          </View>
+        </View>
+
+        <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Sonido</Text>
+          <View style={localStyles.inlineRow}>
+            <Text style={[localStyles.inlineLabel, { color: colors.text }]}>Sonidos de motivación extra</Text>
+            <Switch
+              value={extraMotivationSoundsEnabled}
+              onValueChange={(val) => {
+                setExtraMotivationSoundsEnabled(val)
+                if (val) playYey()
+              }}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor="#fff"
+            />
+          </View>
+        </View>
+
+        <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Step de decimales</Text>
+          <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>
+            Precisión del selector de peso
+          </Text>
+          <View style={localStyles.restRow}>
+            {DECIMAL_STEP_OPTIONS.map((step) => (
+              <HapticButton
+                key={step}
+                style={[
+                  localStyles.restOption,
+                  {
+                    backgroundColor: decimalStep === step ? colors.primary : "transparent",
+                    borderColor: decimalStep === step ? colors.primary : colors.border,
+                  },
+                ]}
+                onPress={() => setDecimalStep(step)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    localStyles.restText,
+                    { color: decimalStep === step ? "#fff" : colors.text },
+                  ]}
+                >
+                  {step.toFixed(2)}
+                </Text>
+              </HapticButton>
+            ))}
+          </View>
+        </View>
+
+        {__DEV__ && (
+          <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Desarrollo</Text>
+            <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>
+              Herramientas de depuración
+            </Text>
+            <View style={localStyles.devRow}>
+              <HapticButton
+                style={[localStyles.devBtn, { backgroundColor: colors.danger }]}
+                onPress={handleClear}
+                disabled={loadingDev}
+              >
+                <Text style={localStyles.devBtnText}>Limpiar BD</Text>
+              </HapticButton>
+              <HapticButton
+                style={[localStyles.devBtn, { backgroundColor: colors.primary }]}
+                onPress={handleSeed}
+                disabled={loadingDev}
+              >
+                <Text style={localStyles.devBtnText}>Poblar con ejemplo</Text>
+              </HapticButton>
+            </View>
+            <View style={[localStyles.devRow, { marginTop: spacing.sm }]}>
+              <HapticButton
+                style={[localStyles.devBtn, { backgroundColor: colors.textTertiary }]}
+                onPress={resetToDefaults}
+              >
+                <Text style={localStyles.devBtnText}>Resetear ajustes</Text>
+              </HapticButton>
+            </View>
+          </View>
+        )}
+      </ScrollView>
+    </View>
   )
 }
 
