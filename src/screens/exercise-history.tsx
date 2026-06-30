@@ -14,14 +14,17 @@ export default function ExerciseHistoryScreen({ route }: Props) {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <MiniWorkoutBar />
-      <Text style={[styles.text, { color: colors.textSecondary }]}>
-        Historial de {route.params.exerciseName}
-      </Text>
+      <View style={styles.centered}>
+        <Text style={[styles.text, { color: colors.textSecondary }]}>
+          Historial de {route.params.exerciseName}
+        </Text>
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
+  container: { flex: 1 },
+  centered: { flex: 1, justifyContent: "center", alignItems: "center" },
   text: { fontSize: 18 },
 })
