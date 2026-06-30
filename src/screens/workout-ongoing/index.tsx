@@ -75,6 +75,7 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
   const [pendingData, setPendingData] = useState({ name: "", count: 0 })
   const [completedExercises, setCompletedExercises] = useState<Set<number>>(new Set())
   const [previousWeights, setPreviousWeights] = useState<Record<number, { weight: number; rirLabel: string }[]>>({})
+  const [selectedWeights, setSelectedWeights] = useState<Record<number, number>>({})
   const [isRestoring, setIsRestoring] = useState(false)
   const intentionalExitRef = useRef(false)
 
@@ -106,11 +107,12 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
         setCurrentExerciseIndex(startIdx)
         if (data.length > 0) {
           const restoredSets = rebuilt.loggedSetsData[data[startIdx].id]
-          setWeight(
+          const initialWeight =
             restoredSets?.length
               ? restoredSets[restoredSets.length - 1].weight
-              : prevWeights[data[startIdx].id]?.[0]?.weight ?? defaultWeight,
-          )
+              : prevWeights[data[startIdx].id]?.[0]?.weight ?? defaultWeight
+          setWeight(initialWeight)
+          setSelectedWeights((prev) => ({ ...prev, [data[startIdx].id]: initialWeight }))
         }
 
         activeWorkout.restoreWorkout()
@@ -123,7 +125,9 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
         setSessionId(sid)
 
         if (data.length > 0) {
-          setWeight(prevWeights[data[0].id]?.[0]?.weight ?? defaultWeight)
+          const initialWeight = prevWeights[data[0].id]?.[0]?.weight ?? defaultWeight
+          setWeight(initialWeight)
+          setSelectedWeights((prev) => ({ ...prev, [data[0].id]: initialWeight }))
         }
 
         activeWorkout.startWorkout({
@@ -139,6 +143,8 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
   }, [route.params.dayId, defaultWeight])
 
   function getWeightForExercise(exerciseId: number): number {
+    const selected = selectedWeights[exerciseId]
+    if (selected !== undefined) return selected
     const currentSets = loggedSetsData[exerciseId]
     if (currentSets?.length) {
       return currentSets[currentSets.length - 1].weight
@@ -158,7 +164,7 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
         setWeight(getWeightForExercise(current.id))
       }
     },
-    [exercises, previousWeights, defaultWeight, loggedSetsData],
+    [exercises, previousWeights, defaultWeight, loggedSetsData, selectedWeights],
   )
 
   async function handleLogSet(rirLabel: string) {
@@ -178,6 +184,7 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
       ...prev,
       [exercise.id]: [...(prev[exercise.id] ?? []), { weight, rirLabel }],
     }))
+    setSelectedWeights((prev) => ({ ...prev, [exercise.id]: weight }))
 
     setRestTrigger((prev) => prev + 1)
   }
@@ -350,7 +357,10 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
       {currentExercise && (
         <WeightPicker
           weight={weight}
-          onWeightChange={setWeight}
+          onWeightChange={(w) => {
+            setWeight(w)
+            setSelectedWeights((prev) => ({ ...prev, [currentExercise.id]: w }))
+          }}
         />
       )}
 
