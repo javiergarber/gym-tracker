@@ -7,6 +7,7 @@ import { themes, type ThemeName } from "@/constants/theme"
 import { spacing, typography, radii } from "@/constants/tokens"
 import { DEFAULTS, VALID_REST_TIMERS, DEFAULT_WEIGHT_OPTIONS, DECIMAL_STEP_OPTIONS } from "@/constants/defaults"
 import HapticButton from "@/components/haptic-button"
+import MiniWorkoutBar from "@/components/mini-workout-bar"
 import { useDatabase } from "@/hooks/use-database"
 import { clearAllData } from "@/server/database"
 import { seedDatabase } from "@/server/database/seed"
@@ -77,6 +78,7 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView style={[localStyles.screen, { backgroundColor: colors.background }]} contentContainerStyle={localStyles.content}>
+      <MiniWorkoutBar />
       <View style={[localStyles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <Text style={[localStyles.sectionTitle, { color: colors.text }]}>Tema</Text>
         <Text style={[localStyles.sectionSub, { color: colors.textTertiary }]}>

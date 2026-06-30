@@ -267,6 +267,39 @@ export async function deleteSessionSet(id: number): Promise<void> {
   await db.runAsync("DELETE FROM session_sets WHERE id = ?", id)
 }
 
+export async function getSessionById(sessionId: number): Promise<WorkoutSession | null> {
+  if (!db) throw new Error("Database not initialized")
+  return db.getFirstAsync(
+    "SELECT id, day_id, started_at, ended_at, completed FROM workout_sessions WHERE id = ?",
+    sessionId
+  ) as Promise<WorkoutSession | null>
+}
+
+export async function getDayWithWorkout(dayId: number) {
+  if (!db) throw new Error("Database not initialized")
+  return db.getFirstAsync(
+    `SELECT d.id, d.workout_id, d.name as day_name, d.subtitle, w.name as workout_name
+     FROM days d
+     JOIN workouts w ON d.workout_id = w.id
+     WHERE d.id = ?`,
+    dayId
+  ) as Promise<{ id: number; workout_id: number; day_name: string; subtitle: string | null; workout_name: string } | null>
+}
+
+export async function getSessionSetsBySession(sessionId: number): Promise<SessionSet[]> {
+  if (!db) throw new Error("Database not initialized")
+  return db.getAllAsync(
+    "SELECT id, session_id, exercise_id, set_index, weight, rir_label, logged_at FROM session_sets WHERE session_id = ? ORDER BY exercise_id, set_index ASC",
+    sessionId
+  ) as Promise<SessionSet[]>
+}
+
+export async function deleteSession(sessionId: number): Promise<void> {
+  if (!db) throw new Error("Database not initialized")
+  await db.runAsync("DELETE FROM session_sets WHERE session_id = ?", sessionId)
+  await db.runAsync("DELETE FROM workout_sessions WHERE id = ?", sessionId)
+}
+
 export async function completeSession(sessionId: number): Promise<void> {
   if (!db) throw new Error("Database not initialized")
   await db.runAsync(

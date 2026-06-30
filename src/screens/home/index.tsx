@@ -24,6 +24,7 @@ import { useDatabase } from "@/hooks/use-database"
 import { useTheme } from "@/hooks/use-theme"
 import { spacing, typography, radii } from "@/constants/tokens"
 import HapticButton from "@/components/haptic-button"
+import MiniWorkoutBar from "@/components/mini-workout-bar"
 import NewWorkoutDialog from "@/components/new-workout-dialog"
 import RenameWorkoutModal from "@/components/rename-workout-modal"
 import DeleteWorkoutConfirmDialog from "@/components/delete-workout-confirm-dialog"
@@ -138,30 +139,34 @@ export default function Home({ navigation }: Props) {
           </HapticButton>
         </View>
 
-        {workouts.length === 0 ? (
-          <View style={styles.empty}>
-            <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>No hay entrenamientos todavía</Text>
-            <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>¡Crea uno!</Text>
-            <HapticButton style={[styles.emptyBtn, { backgroundColor: colors.primary }]} onPress={handleNewWorkout}>
-              <Text style={[styles.emptyBtnText, { color: colors.surface }]}>Nuevo entrenamiento</Text>
-            </HapticButton>
-          </View>
-        ) : (
-          <FlatList
-            data={workouts}
-            keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={styles.list}
-            renderItem={({ item }) => (
-              <WorkoutCard
-                workout={item}
-                onPress={() => navigation.navigate("WorkoutDetail", { workoutId: item.id })}
-                onRename={() => handleRename(item)}
-                onDelete={() => handleDelete(item)}
-                onOpenChange={handleOpenChange}
-              />
-            )}
-          />
-        )}
+        <MiniWorkoutBar />
+
+        <View style={styles.contentArea}>
+          {workouts.length === 0 ? (
+            <View style={styles.empty}>
+              <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>No hay entrenamientos todavía</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>¡Crea uno!</Text>
+              <HapticButton style={[styles.emptyBtn, { backgroundColor: colors.primary }]} onPress={handleNewWorkout}>
+                <Text style={[styles.emptyBtnText, { color: colors.surface }]}>Nuevo entrenamiento</Text>
+              </HapticButton>
+            </View>
+          ) : (
+            <FlatList
+              data={workouts}
+              keyExtractor={(item) => item.id.toString()}
+              contentContainerStyle={styles.list}
+              renderItem={({ item }) => (
+                <WorkoutCard
+                  workout={item}
+                  onPress={() => navigation.navigate("WorkoutDetail", { workoutId: item.id })}
+                  onRename={() => handleRename(item)}
+                  onDelete={() => handleDelete(item)}
+                  onOpenChange={handleOpenChange}
+                />
+              )}
+            />
+          )}
+        </View>
 
         {openSwipeable && (
           <Pressable style={styles.overlay} onPress={handleOverlayPress} />
@@ -219,6 +224,9 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     maxWidth: Platform.OS === "web" ? 800 : undefined,
+  },
+  contentArea: {
+    flex: 1,
   },
   header: {
     paddingTop: 60,

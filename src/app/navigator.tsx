@@ -18,9 +18,10 @@ export default function Navigator() {
     <Stack.Navigator
       screenOptions={{
         headerBackTitle: "Volver",
-        headerStyle: { backgroundColor: colors.surface },
+        headerStyle: {
+          backgroundColor: colors.surface,
+        },
         headerTintColor: colors.text,
-        headerTitleStyle: { color: colors.text },
       }}
     >
       <Stack.Screen

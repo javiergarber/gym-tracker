@@ -3,6 +3,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack"
 
 import { useTheme } from "@/hooks/use-theme"
 import { typography } from "@/constants/tokens"
+import MiniWorkoutBar from "@/components/mini-workout-bar"
 import type { RootStackParamList } from "@/app/navigator.types"
 
 type Props = NativeStackScreenProps<RootStackParamList, "ExerciseHistory">
@@ -12,6 +13,7 @@ export default function ExerciseHistoryScreen({ route }: Props) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <MiniWorkoutBar />
       <Text style={[styles.text, { color: colors.textSecondary }]}>
         Historial de {route.params.exerciseName}
       </Text>

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react"
-import { FlatList, StyleSheet, Text, View, Platform } from "react-native"
+import { FlatList, StyleSheet, Text, View, Platform, Modal, Pressable } from "react-native"
 import type { NativeStackScreenProps } from "@react-navigation/native-stack"
 
 import { useTheme } from "@/hooks/use-theme"
+import { useActiveWorkout } from "@/hooks/use-active-workout"
 import { spacing, typography, radii } from "@/constants/tokens"
-import { getDayById, getDayExercises } from "@/server/database"
+import { getDayById, getDayExercises, deleteSession } from "@/server/database"
 import HapticButton from "@/components/haptic-button"
+import MiniWorkoutBar from "@/components/mini-workout-bar"
 import type { RootStackParamList } from "@/app/navigator.types"
 import type { Day, ExerciseWithSets } from "@/constants/types"
 
@@ -24,8 +26,10 @@ type Props = NativeStackScreenProps<RootStackParamList, "DayDetail">
 
 export default function DayDetailScreen({ route, navigation }: Props) {
   const { colors } = useTheme()
+  const activeWorkout = useActiveWorkout()
   const [day, setDay] = useState<Day | null>(null)
   const [exercises, setExercises] = useState<ExerciseWithSets[]>([])
+  const [showActiveWarning, setShowActiveWarning] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -41,6 +45,7 @@ export default function DayDetailScreen({ route, navigation }: Props) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <MiniWorkoutBar />
       <FlatList
         data={exercises}
         keyExtractor={(item) => item.id.toString()}
@@ -81,20 +86,67 @@ export default function DayDetailScreen({ route, navigation }: Props) {
 
       <View
         style={[
-          styles.bottomBar,
+          styles.bottomSection,
           {
             backgroundColor: colors.surface,
             borderTopColor: colors.border,
           },
         ]}
       >
-        <HapticButton
-          style={[styles.startButton, { backgroundColor: colors.primary }]}
-          onPress={() => navigation.navigate("WorkoutOngoing", { dayId: route.params.dayId })}
-        >
-          <Text style={styles.startButtonText}>Comenzar</Text>
-        </HapticButton>
+        <View style={styles.startButtonWrapper}>
+          <HapticButton
+            style={[styles.startButton, { backgroundColor: colors.primary }]}
+            onPress={() => {
+              if (activeWorkout.isActive) {
+                setShowActiveWarning(true)
+              } else {
+                navigation.navigate("WorkoutOngoing", { dayId: route.params.dayId })
+              }
+            }}
+          >
+            <Text style={styles.startButtonText}>Comenzar</Text>
+          </HapticButton>
+        </View>
       </View>
+
+      <Modal
+        visible={showActiveWarning}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowActiveWarning(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setShowActiveWarning(false)}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              Entrenamiento en curso
+            </Text>
+            <Text style={[styles.modalMessage, { color: colors.textSecondary }]}>
+              Ya hay un entrenamiento activo. Si empiezas uno nuevo, el anterior se perderá sin guardarse.
+            </Text>
+            <View style={styles.modalActions}>
+              <HapticButton
+                style={[styles.modalButton, { backgroundColor: colors.backgroundSecondary }]}
+                onPress={() => setShowActiveWarning(false)}
+              >
+                <Text style={[styles.modalButtonText, { color: colors.text }]}>Seguir actual</Text>
+              </HapticButton>
+              <HapticButton
+                style={[styles.modalButton, { backgroundColor: colors.danger }]}
+                onPress={async () => {
+                  if (activeWorkout.sessionData) {
+                    await deleteSession(activeWorkout.sessionData.sessionId)
+                  }
+                  activeWorkout.discardWorkout()
+                  setShowActiveWarning(false)
+                  navigation.navigate("WorkoutOngoing", { dayId: route.params.dayId })
+                }}
+              >
+                <Text style={[styles.modalButtonText, { color: "#fff" }]}>Empezar nuevo</Text>
+              </HapticButton>
+            </View>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   )
 }
@@ -147,14 +199,16 @@ const styles = StyleSheet.create({
     fontSize: typography.bodySmall.fontSize,
     fontWeight: "600",
   },
-  bottomBar: {
+  bottomSection: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
+    borderTopWidth: 1,
+  },
+  startButtonWrapper: {
     padding: spacing.lg,
     paddingBottom: spacing.xxl,
-    borderTopWidth: 1,
   },
   startButton: {
     borderRadius: radii.md,
@@ -165,5 +219,43 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: typography.h3.fontSize,
     fontWeight: "700",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: spacing.lg,
+  },
+  modalContent: {
+    borderRadius: radii.xl,
+    borderWidth: 1,
+    padding: spacing.xl,
+    width: "100%",
+    maxWidth: 360,
+  },
+  modalTitle: {
+    fontSize: typography.h2.fontSize,
+    fontWeight: "700",
+    marginBottom: spacing.sm,
+  },
+  modalMessage: {
+    fontSize: typography.body.fontSize,
+    lineHeight: 22,
+    marginBottom: spacing.xl,
+  },
+  modalActions: {
+    flexDirection: "row",
+    gap: spacing.md,
+  },
+  modalButton: {
+    flex: 1,
+    borderRadius: radii.md,
+    paddingVertical: spacing.md,
+    alignItems: "center",
+  },
+  modalButtonText: {
+    fontSize: typography.bodySmall.fontSize,
+    fontWeight: "600",
   },
 })

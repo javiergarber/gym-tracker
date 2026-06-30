@@ -7,6 +7,7 @@ import { useTheme } from "@/hooks/use-theme"
 import { spacing, typography, radii } from "@/constants/tokens"
 import { getWorkoutById, getWorkoutDays } from "@/server/database"
 import HapticButton from "@/components/haptic-button"
+import MiniWorkoutBar from "@/components/mini-workout-bar"
 import type { RootStackParamList } from "@/app/navigator.types"
 
 type Props = NativeStackScreenProps<RootStackParamList, "WorkoutDetail">
@@ -38,6 +39,7 @@ export default function WorkoutDetailScreen({ route, navigation }: Props) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <MiniWorkoutBar style={{ marginBottom: spacing.sm }} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {days.map((day, index) => (
           <HapticButton

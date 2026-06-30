@@ -10,6 +10,7 @@ import { ThemeProvider, useTheme } from "@/hooks/use-theme"
 import { AudioProvider } from "@/hooks/use-audio"
 import { DatabaseProvider } from "@/hooks/use-database"
 import { DevProvider } from "@/hooks/dev-provider"
+import { ActiveWorkoutProvider } from "@/hooks/use-active-workout"
 import Navigator from "@/app/navigator"
 
 const Root = Platform.OS === "web" ? View : GestureHandlerRootView
@@ -68,6 +69,7 @@ export default function App() {
     <Root style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <ThemeProvider>
         <StatusBarWrapper />
+        <ActiveWorkoutProvider>
         <AudioProvider>
         <DatabaseProvider>
           <DevProvider>
@@ -77,6 +79,7 @@ export default function App() {
           </DevProvider>
         </DatabaseProvider>
         </AudioProvider>
+        </ActiveWorkoutProvider>
       </ThemeProvider>
     </Root>
   )
