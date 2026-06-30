@@ -35,6 +35,13 @@
       "request": "launch",
       "command": "npx expo start --web",
       "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "EAS Build Android (preview)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npx eas build --platform android --profile preview",
+      "cwd": "${workspaceFolder}"
     }
   ]
 }
