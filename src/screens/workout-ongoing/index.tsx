@@ -105,7 +105,12 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
         const startIdx = rebuilt.firstUncompletedIdx >= 0 ? rebuilt.firstUncompletedIdx : 0
         setCurrentExerciseIndex(startIdx)
         if (data.length > 0) {
-          setWeight(prevWeights[data[startIdx].id]?.[0]?.weight ?? defaultWeight)
+          const restoredSets = rebuilt.loggedSetsData[data[startIdx].id]
+          setWeight(
+            restoredSets?.length
+              ? restoredSets[restoredSets.length - 1].weight
+              : prevWeights[data[startIdx].id]?.[0]?.weight ?? defaultWeight,
+          )
         }
 
         activeWorkout.restoreWorkout()
@@ -133,16 +138,27 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
     })()
   }, [route.params.dayId, defaultWeight])
 
+  function getWeightForExercise(exerciseId: number): number {
+    const currentSets = loggedSetsData[exerciseId]
+    if (currentSets?.length) {
+      return currentSets[currentSets.length - 1].weight
+    }
+    const prev = previousWeights[exerciseId]
+    if (prev?.length) {
+      return prev[0].weight
+    }
+    return defaultWeight
+  }
+
   const handleExerciseIndexChange = useCallback(
     (index: number) => {
       setCurrentExerciseIndex(index)
       const current = exercises[index]
       if (current) {
-        const prev = previousWeights[current.id]
-        setWeight(prev?.[0]?.weight ?? defaultWeight)
+        setWeight(getWeightForExercise(current.id))
       }
     },
-    [exercises, previousWeights, defaultWeight],
+    [exercises, previousWeights, defaultWeight, loggedSetsData],
   )
 
   async function handleLogSet(rirLabel: string) {
