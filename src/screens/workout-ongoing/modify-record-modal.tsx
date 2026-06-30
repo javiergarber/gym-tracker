@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Modal, View, Text, StyleSheet, FlatList, Alert } from "react-native"
+import { Modal, View, Text, TextInput, StyleSheet, FlatList } from "react-native"
 
 import { useTheme } from "@/hooks/use-theme"
 import { spacing, typography, radii } from "@/constants/tokens"
@@ -43,6 +43,8 @@ export default function ModifyRecordModal({
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editWeight, setEditWeight] = useState("")
   const [editRir, setEditRir] = useState("")
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
+  const [errorMessage, setErrorMessage] = useState("")
 
   useEffect(() => {
     if (visible && sessionId && exerciseId) {
@@ -55,19 +57,16 @@ export default function ModifyRecordModal({
     setSets(data)
   }
 
-  async function handleDelete(id: number) {
-    Alert.alert("Borrar serie", "¿Estás seguro de que quieres borrar esta serie?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Borrar",
-        style: "destructive",
-        onPress: async () => {
-          await deleteSessionSet(id)
-          await loadSets()
-          onModified()
-        },
-      },
-    ])
+  function handleDelete(id: number) {
+    setDeleteTargetId(id)
+  }
+
+  async function confirmDelete() {
+    if (deleteTargetId === null) return
+    await deleteSessionSet(deleteTargetId)
+    setDeleteTargetId(null)
+    await loadSets()
+    onModified()
   }
 
   function startEdit(set: SessionSet) {
@@ -80,7 +79,7 @@ export default function ModifyRecordModal({
     if (editingId === null) return
     const weight = parseFloat(editWeight)
     if (isNaN(weight) || weight < 0) {
-      Alert.alert("Error", "Introduce un peso válido")
+      setErrorMessage("Introduce un peso válido")
       return
     }
     await updateSessionSet(editingId, weight, editRir)
@@ -127,6 +126,13 @@ export default function ModifyRecordModal({
                 {editingId === item.id ? (
                   <View style={styles.editFields}>
                     <View style={styles.editRow}>
+                      <TextInput
+                        style={[styles.weightInput, { color: colors.text, borderColor: colors.border }]}
+                        value={editWeight}
+                        onChangeText={setEditWeight}
+                        keyboardType="decimal-pad"
+                        selectTextOnFocus
+                      />
                       <HapticButton
                         style={[styles.rirBadge, { backgroundColor: getRirColor(editRir, colors) }]}
                         onPress={() => setEditRir(cycleRir(editRir))}
@@ -178,6 +184,47 @@ export default function ModifyRecordModal({
           />
         </View>
       </View>
+
+      <Modal visible={deleteTargetId !== null} transparent animationType="fade">
+        <View style={[styles.overlayCentered, { backgroundColor: colors.overlay }]}>
+          <View style={[styles.dialog, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.dialogTitle, { color: colors.text }]}>Borrar serie</Text>
+            <Text style={[styles.dialogMessage, { color: colors.textTertiary }]}>
+              ¿Estás seguro de que quieres borrar esta serie?
+            </Text>
+            <View style={styles.dialogActions}>
+              <HapticButton
+                style={[styles.dialogCancelBtn, { borderColor: colors.border }]}
+                onPress={() => setDeleteTargetId(null)}
+              >
+                <Text style={[styles.dialogCancelText, { color: colors.textTertiary }]}>Cancelar</Text>
+              </HapticButton>
+              <HapticButton style={[styles.dialogConfirmBtn, { backgroundColor: colors.danger }]} onPress={confirmDelete}>
+                <Text style={styles.dialogConfirmText}>Borrar</Text>
+              </HapticButton>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={errorMessage !== ""} transparent animationType="fade">
+        <View style={[styles.overlayCentered, { backgroundColor: colors.overlay }]}>
+          <View style={[styles.dialog, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.dialogTitle, { color: colors.text }]}>Error</Text>
+            <Text style={[styles.dialogMessage, { color: colors.textTertiary }]}>
+              {errorMessage}
+            </Text>
+            <View style={styles.dialogActions}>
+              <HapticButton
+                style={[styles.dialogConfirmBtn, { backgroundColor: colors.primary, flex: 1 }]}
+                onPress={() => setErrorMessage("")}
+              >
+                <Text style={styles.dialogConfirmText}>OK</Text>
+              </HapticButton>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </Modal>
   )
 }
@@ -294,6 +341,63 @@ const styles = StyleSheet.create({
   cancelEditText: {
     fontSize: 18,
     padding: spacing.xs,
+  },
+  weightInput: {
+    fontSize: typography.body.fontSize,
+    fontWeight: "700",
+    borderWidth: 1,
+    borderRadius: radii.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    minWidth: 72,
+    textAlign: "center",
+  },
+  overlayCentered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: spacing.xxl,
+  },
+  dialog: {
+    borderRadius: radii.xl,
+    padding: spacing.xxl,
+    width: "100%",
+    maxWidth: 400,
+  },
+  dialogTitle: {
+    fontSize: typography.h2.fontSize,
+    fontWeight: typography.h2.fontWeight,
+    marginBottom: spacing.lg,
+  },
+  dialogMessage: {
+    fontSize: typography.body.fontSize,
+    marginBottom: spacing.xl,
+    lineHeight: 22,
+  },
+  dialogActions: {
+    flexDirection: "row",
+    gap: spacing.md,
+  },
+  dialogCancelBtn: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    alignItems: "center",
+  },
+  dialogCancelText: {
+    fontSize: typography.body.fontSize,
+  },
+  dialogConfirmBtn: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: radii.sm,
+    alignItems: "center",
+  },
+  dialogConfirmText: {
+    fontSize: typography.body.fontSize,
+    color: "#fff",
+    fontWeight: "600",
   },
   emptyText: {
     fontSize: typography.body.fontSize,

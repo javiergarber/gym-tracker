@@ -247,6 +247,15 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
     setRestTrigger(0)
   }, [])
 
+  async function handleModified() {
+    if (!sessionId) return
+    const sessionSets = await getSessionSetsBySession(sessionId)
+    const rebuilt = rebuildFromSessionSets(sessionSets, exercises)
+    setLoggedSetsMap(rebuilt.loggedSetsMap)
+    setLoggedSetsData(rebuilt.loggedSetsData)
+    setCompletedExercises(rebuilt.completedExercises)
+  }
+
   function handleModifyRecordClose() {
     setShowModifyRecord(false)
   }
@@ -406,7 +415,7 @@ export default function WorkoutOngoingScreen({ route, navigation }: Props) {
           exerciseId={currentExercise.id}
           exerciseName={currentExercise.name}
           onClose={handleModifyRecordClose}
-          onModified={() => {}}
+          onModified={handleModified}
         />
       )}
     </View>
